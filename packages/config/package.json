@@ -1,0 +1,14 @@
+{
+  "name": "@chopsave/config",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./eslint.base.js": "./eslint.base.js",
+    "./prettier.config.js": "./prettier.config.js"
+  },
+  "scripts": {
+    "build": "echo 'No build step for config package'",
+    "lint": "echo 'No lint step for config package'"
+  }
+}
