@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "ChopSave",
+    "slug": "chopsave",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "chopsave",
+    "platforms": ["ios", "android"],
+    "ios": { "bundleIdentifier": "com.chopsave.app" },
+    "android": { "package": "com.chopsave.app" },
+    "plugins": ["expo-router", "expo-location", "expo-camera", "expo-secure-store"]
+  }
+}
