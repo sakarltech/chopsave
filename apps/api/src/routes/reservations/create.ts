@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { getPool } from '../../db/pool';
 import { generatePickupCode, calculateCommission } from '@chopsave/shared';
 import { getRedis } from '../../plugins/redis';
+import { pendingPaymentExpiryQueue } from '../../plugins/queue';
 
 interface CreateReservationBody {
   listingId: string;
@@ -113,9 +114,18 @@ export async function createReservationHandler(
       }));
     }
 
+    const res = reservation.rows[0];
+    await pendingPaymentExpiryQueue.add(
+      'expire-reservation',
+      { reservationId: res.id },
+      {
+        delay: 10 * 60 * 1000,
+        jobId: `pending-payment:${res.id}`,
+      },
+    );
+
     await client.query('COMMIT');
 
-    const res = reservation.rows[0];
     reply.status(201).send({
       id: res.id,
       listingId: res.listing_id,
