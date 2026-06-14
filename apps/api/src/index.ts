@@ -7,6 +7,8 @@ import { userRoutes } from './routes/users';
 import { businessRoutes } from './routes/businesses';
 import { adminRoutes } from './routes/admin';
 import { listingRoutes } from './routes/listings';
+import { reservationRoutes } from './routes/reservations';
+import { paymentRoutes } from './routes/payments';
 import { sseListingRoutes } from './routes/sse/listings';
 
 const app = Fastify({ logger: true });
@@ -23,6 +25,8 @@ app.register(userRoutes);
 app.register(businessRoutes);
 app.register(adminRoutes);
 app.register(listingRoutes);
+app.register(reservationRoutes);
+app.register(paymentRoutes);
 app.register(sseListingRoutes);
 
 const start = async (): Promise<void> => {
