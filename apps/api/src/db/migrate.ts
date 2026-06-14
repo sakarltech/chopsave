@@ -21,7 +21,7 @@ async function runMigrations(): Promise<void> {
   const appliedSet = new Set(applied.map((r) => r.filename));
 
   // Read migration files
-  const migrationsDir = join(__dirname, '../../migrations');
+  const migrationsDir = join(__dirname, '../../../../migrations');
   const files = (await readdir(migrationsDir))
     .filter((f) => f.endsWith('.sql'))
     .sort();
