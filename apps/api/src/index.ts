@@ -3,6 +3,9 @@ import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import authPlugin from './plugins/auth';
 import { authRoutes } from './routes/auth';
+import { userRoutes } from './routes/users';
+import { businessRoutes } from './routes/businesses';
+import { adminRoutes } from './routes/admin';
 
 const app = Fastify({ logger: true });
 
@@ -14,6 +17,9 @@ app.register(authPlugin);
 // Routes
 app.get('/health', async () => ({ status: 'ok', service: 'chopsave-api' }));
 app.register(authRoutes);
+app.register(userRoutes);
+app.register(businessRoutes);
+app.register(adminRoutes);
 
 const start = async (): Promise<void> => {
   try {
