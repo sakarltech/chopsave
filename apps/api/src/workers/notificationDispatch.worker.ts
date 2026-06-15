@@ -90,7 +90,7 @@ const worker = new Worker(
       );
     }
   },
-  { connection: getRedis(), concurrency: 10 },
+  { connection: getRedis() as any, concurrency: 10 },
 );
 
 worker.on('failed', (job, err) => {

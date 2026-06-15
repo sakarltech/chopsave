@@ -68,7 +68,7 @@ const worker = new Worker(
       console.log(`[payout-settlement] Processed ${result.rows.length} payout(s)`);
     }
   },
-  { connection: getRedis() },
+  { connection: getRedis() as any },
 );
 
 worker.on('failed', (job, err) => {

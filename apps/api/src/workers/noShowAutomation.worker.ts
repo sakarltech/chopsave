@@ -59,7 +59,7 @@ const worker = new Worker(
       console.log(`[no-show-automation] Marked ${result.rows.length} reservation(s) as no-show`);
     }
   },
-  { connection: getRedis() },
+  { connection: getRedis() as any },
 );
 
 worker.on('failed', (job, err) => {

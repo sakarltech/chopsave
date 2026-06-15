@@ -3,23 +3,26 @@ import { registerBusinessHandler } from './register';
 import { getBusinessHandler, updateBusinessHandler } from './profile';
 import { addBankAccountHandler, getBankAccountsHandler } from './bankAccounts';
 import { requireRole } from '../../middleware/requireRole';
+import type { RegisterBusinessBody } from './register';
+import type { UpdateBusinessBody } from './profile';
+import type { AddBankAccountBody } from './bankAccounts';
 
 export async function businessRoutes(app: FastifyInstance): Promise<void> {
   // Public
-  app.get('/businesses/:id', getBusinessHandler);
+  app.get<{ Params: { id: string } }>('/businesses/:id', getBusinessHandler);
 
   // Authenticated - any role (will upgrade to business_owner)
-  app.post('/businesses/register', {
+  app.post<{ Body: RegisterBusinessBody }>('/businesses/register', {
     preHandler: [app.authenticate],
   }, registerBusinessHandler);
 
   // Business owner only
-  app.patch('/businesses/:id', {
+  app.patch<{ Params: { id: string }; Body: UpdateBusinessBody }>('/businesses/:id', {
     preHandler: [app.authenticate, requireRole('business_owner', 'admin')],
   }, updateBusinessHandler);
 
   // Bank accounts (business owner only)
-  app.post('/businesses/:id/bank-accounts', {
+  app.post<{ Params: { id: string }; Body: AddBankAccountBody }>('/businesses/:id/bank-accounts', {
     preHandler: [app.authenticate, requireRole('business_owner')],
   }, addBankAccountHandler);
 

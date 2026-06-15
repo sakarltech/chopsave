@@ -13,7 +13,7 @@ interface ListingItem {
   photoUrl?: string;
 }
 
-interface CreateListingBody {
+export interface CreateListingBody {
   type: string;
   title?: string;
   description?: string;

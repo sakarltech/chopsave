@@ -4,7 +4,7 @@ import { generatePickupCode, calculateCommission } from '@chopsave/shared';
 import { getRedis } from '../../plugins/redis';
 import { pendingPaymentExpiryQueue } from '../../plugins/queue';
 
-interface CreateReservationBody {
+export interface CreateReservationBody {
   listingId: string;
   quantity: number;
 }

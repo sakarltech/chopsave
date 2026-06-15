@@ -54,7 +54,7 @@ const worker = new Worker(
       payload: { reservationId, pickupCode: reservation.pickup_code },
     });
   },
-  { connection: getRedis() },
+  { connection: getRedis() as any },
 );
 
 worker.on('failed', (job, err) => {
