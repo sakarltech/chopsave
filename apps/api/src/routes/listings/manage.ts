@@ -2,7 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { getPool } from '../../db/pool';
 import { getRedis } from '../../plugins/redis';
 
-interface UpdateListingBody {
+export interface UpdateListingBody {
   title?: string;
   description?: string;
   quantityTotal?: number;
@@ -73,7 +73,7 @@ export async function updateListingHandler(
 }
 
 // PATCH /listings/:id/status
-interface StatusBody {
+export interface StatusBody {
   status: 'paused' | 'active' | 'closed';
 }
 

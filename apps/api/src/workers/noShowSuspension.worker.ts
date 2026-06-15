@@ -50,7 +50,7 @@ const worker = new Worker(
       console.log(`[no-show-suspension] Suspended ${result.rows.length} consumer(s)`);
     }
   },
-  { connection: getRedis() },
+  { connection: getRedis() as any },
 );
 
 worker.on('failed', (job, err) => {

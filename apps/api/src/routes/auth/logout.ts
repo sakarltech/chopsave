@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { TokenService } from '../../services/TokenService';
 
-interface LogoutBody {
+export interface LogoutBody {
   refreshToken: string;
 }
 

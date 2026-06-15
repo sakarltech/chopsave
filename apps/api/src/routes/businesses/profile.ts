@@ -48,7 +48,7 @@ export async function getBusinessHandler(
 }
 
 // PATCH /businesses/:id — Update business profile (owner or admin)
-interface UpdateBusinessBody {
+export interface UpdateBusinessBody {
   description?: string;
   photoUrls?: string[];
   address?: string;

@@ -2,7 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { getPool } from '../../db/pool';
 import { env } from '../../config/env';
 
-interface AddBankAccountBody {
+export interface AddBankAccountBody {
   bankCode: string;
   accountNumber: string;
 }

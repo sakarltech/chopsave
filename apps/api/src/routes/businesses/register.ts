@@ -4,7 +4,7 @@ import { isWithinSupportedCity } from '../../services/GeofenceService';
 import { BusinessType, SupportedCity } from '@chopsave/shared';
 import { notificationDispatchQueue } from '../../plugins/queue';
 
-interface RegisterBusinessBody {
+export interface RegisterBusinessBody {
   businessName: string;
   type: string;
   cacNumber?: string;

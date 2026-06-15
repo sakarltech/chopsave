@@ -4,6 +4,9 @@ import { createListingHandler } from './create';
 import { getNearbyListingsHandler, getListingDetailHandler } from './nearby';
 import { updateListingHandler, updateListingStatusHandler, deleteListingHandler } from './manage';
 import { addListingItemHandler, updateListingItemHandler, deleteListingItemHandler } from './items';
+import type { CreateListingBody } from './create';
+import type { UpdateListingBody, StatusBody } from './manage';
+import type { AddItemBody } from './items';
 
 export async function listingRoutes(app: FastifyInstance): Promise<void> {
   // Public
@@ -11,32 +14,32 @@ export async function listingRoutes(app: FastifyInstance): Promise<void> {
   app.get('/listings/:id', getListingDetailHandler);
 
   // Business owner
-  app.post('/listings', {
+  app.post<{ Body: CreateListingBody }>('/listings', {
     preHandler: [app.authenticate, requireRole('business_owner')],
   }, createListingHandler);
 
-  app.patch('/listings/:id', {
+  app.patch<{ Params: { id: string }; Body: UpdateListingBody }>('/listings/:id', {
     preHandler: [app.authenticate, requireRole('business_owner')],
   }, updateListingHandler);
 
-  app.patch('/listings/:id/status', {
+  app.patch<{ Params: { id: string }; Body: StatusBody }>('/listings/:id/status', {
     preHandler: [app.authenticate, requireRole('business_owner')],
   }, updateListingStatusHandler);
 
-  app.delete('/listings/:id', {
+  app.delete<{ Params: { id: string } }>('/listings/:id', {
     preHandler: [app.authenticate, requireRole('business_owner')],
   }, deleteListingHandler);
 
   // Listing items (itemised listings)
-  app.post('/listings/:id/items', {
+  app.post<{ Params: { id: string }; Body: AddItemBody }>('/listings/:id/items', {
     preHandler: [app.authenticate, requireRole('business_owner')],
   }, addListingItemHandler);
 
-  app.patch('/listings/:id/items/:itemId', {
+  app.patch<{ Params: { id: string; itemId: string }; Body: Partial<AddItemBody> }>('/listings/:id/items/:itemId', {
     preHandler: [app.authenticate, requireRole('business_owner')],
   }, updateListingItemHandler);
 
-  app.delete('/listings/:id/items/:itemId', {
+  app.delete<{ Params: { id: string; itemId: string } }>('/listings/:id/items/:itemId', {
     preHandler: [app.authenticate, requireRole('business_owner')],
   }, deleteListingItemHandler);
 }

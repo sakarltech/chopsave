@@ -4,10 +4,12 @@ import { createReservationHandler } from './create';
 import { getReservationsHandler, getReservationDetailHandler } from './list';
 import { cancelReservationHandler } from './cancel';
 import { collectReservationHandler } from './collect';
+import type { CreateReservationBody } from './create';
+import type { CollectBody } from './collect';
 
 export async function reservationRoutes(app: FastifyInstance): Promise<void> {
   // Consumer routes
-  app.post('/reservations', {
+  app.post<{ Body: CreateReservationBody }>('/reservations', {
     preHandler: [app.authenticate, requireRole('consumer')],
   }, createReservationHandler);
 
@@ -15,16 +17,16 @@ export async function reservationRoutes(app: FastifyInstance): Promise<void> {
     preHandler: [app.authenticate],
   }, getReservationsHandler);
 
-  app.get('/reservations/:id', {
+  app.get<{ Params: { id: string } }>('/reservations/:id', {
     preHandler: [app.authenticate],
   }, getReservationDetailHandler);
 
-  app.post('/reservations/:id/cancel', {
+  app.post<{ Params: { id: string } }>('/reservations/:id/cancel', {
     preHandler: [app.authenticate, requireRole('consumer')],
   }, cancelReservationHandler);
 
   // Business owner collects
-  app.post('/reservations/:id/collect', {
+  app.post<{ Params: { id: string }; Body: CollectBody }>('/reservations/:id/collect', {
     preHandler: [app.authenticate, requireRole('business_owner')],
   }, collectReservationHandler);
 }
