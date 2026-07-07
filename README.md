@@ -4,6 +4,12 @@ A Nigerian food waste rescue marketplace. Food businesses — restaurants, baker
 
 ---
 
+## MVP Roadmap
+
+The current release plan is an 8-week Lagos-only Web PWA pilot. See [docs/mvp-roadmap.md](docs/mvp-roadmap.md) for the implementation roadmap, feature matrix, competitor baseline, and hosting recommendation.
+
+---
+
 ## Monorepo Structure
 
 This repo uses **pnpm workspaces** and **Turborepo** for build orchestration.
