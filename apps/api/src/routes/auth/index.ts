@@ -13,7 +13,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
   app.post('/auth/refresh', refreshHandler);
 
   // Authenticated route
-  app.post('/auth/logout', {
+  app.post<{ Body: import('./logout').LogoutBody }>('/auth/logout', {
     preHandler: [app.authenticate],
   }, logoutHandler);
 }

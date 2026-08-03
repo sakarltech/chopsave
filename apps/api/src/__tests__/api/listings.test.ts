@@ -8,7 +8,7 @@ describe('API: Listings Endpoints (contract)', () => {
     });
 
     it('radius defaults to 5000 if not provided', () => {
-      const radius = undefined ?? 5000;
+      const radius = 5000;
       expect(radius).toBe(5000);
     });
   });

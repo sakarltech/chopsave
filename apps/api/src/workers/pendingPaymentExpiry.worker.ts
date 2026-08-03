@@ -79,7 +79,7 @@ const worker = new Worker(
       client.release();
     }
   },
-  { connection: getRedis() },
+  { connection: getRedis() as any },
 );
 
 worker.on('failed', (job, err) => {

@@ -3,7 +3,7 @@ import { getPool } from '../../db/pool';
 import { notificationDispatchQueue } from '../../plugins/queue';
 import { NotificationType } from '@chopsave/shared';
 
-interface CollectBody {
+export interface CollectBody {
   pickupCode: string;
 }
 

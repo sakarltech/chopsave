@@ -3,7 +3,7 @@ import { getPool } from '../../db/pool';
 import { initializeTransaction } from '../../lib/paystack';
 import { randomBytes } from 'crypto';
 
-interface InitiatePaymentBody {
+export interface InitiatePaymentBody {
   reservationId: string;
   method?: string; // card, bank_transfer, ussd
 }

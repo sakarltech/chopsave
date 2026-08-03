@@ -34,7 +34,7 @@ const worker = new Worker(
       console.log(`[listing-expiry] Expired ${result.rows.length} listing(s)`);
     }
   },
-  { connection: getRedis() },
+  { connection: getRedis() as any },
 );
 
 worker.on('failed', (job, err) => {

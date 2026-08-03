@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { getPool } from '../../db/pool';
 
-interface SubmitRatingBody {
+export interface SubmitRatingBody {
   reservationId: string;
   stars: number;
   review?: string;

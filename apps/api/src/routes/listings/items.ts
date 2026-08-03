@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { getPool } from '../../db/pool';
 
-interface AddItemBody {
+export interface AddItemBody {
   name: string;
   description?: string;
   originalPrice?: number;
