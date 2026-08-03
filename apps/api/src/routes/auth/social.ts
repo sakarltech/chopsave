@@ -117,7 +117,7 @@ export async function socialLoginHandler(
   let isNewUser = false;
 
   // Try to find existing user by email
-  let userResult = email
+  const userResult = email
     ? await pool.query(
         `SELECT id, role, status FROM users WHERE email = $1`,
         [email],

@@ -6,7 +6,10 @@ import { api } from '../../services/api';
 export function ProfileScreen() {
   const { user, logout } = useAuthStore();
 
-  const handleLogout = async () => { try { await api.post('/auth/logout', { refreshToken: useAuthStore.getState().refreshToken }); } catch {} logout(); };
+  const handleLogout = async () => {
+    await api.post('/auth/logout', { refreshToken: useAuthStore.getState().refreshToken }).catch(() => undefined);
+    logout();
+  };
   const handleDelete = () => Alert.alert('Delete Account', 'This cannot be undone.', [{ text: 'Cancel' }, { text: 'Delete', style: 'destructive', onPress: async () => { await api.delete('/users/me'); logout(); } }]);
 
   return (

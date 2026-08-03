@@ -5,8 +5,11 @@
       "outputs": [".next/**", "dist/**"]
     },
     "lint": {},
+    "typecheck": {
+      "dependsOn": ["^typecheck"]
+    },
     "test": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^typecheck"]
     },
     "dev": {
       "cache": false,
