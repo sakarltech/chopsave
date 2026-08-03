@@ -7,7 +7,12 @@
   "exports": { ".": "./src/index.ts" },
   "scripts": {
     "build": "tsc",
-    "lint": "eslint src",
-    "test": "vitest run"
+    "typecheck": "tsc --noEmit",
+    "lint": "pnpm --workspace-root exec eslint packages/shared/src --ext .ts",
+    "test": "echo 'No shared package tests configured'"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
   }
 }

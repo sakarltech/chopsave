@@ -1,3 +1,4 @@
+import { createHmac } from 'node:crypto';
 import { env } from '../config/env';
 
 const PAYSTACK_BASE = 'https://api.paystack.co';
@@ -87,9 +88,7 @@ export async function initiateRefund(params: {
  * Verify Paystack webhook signature (HMAC-SHA512).
  */
 export function verifyWebhookSignature(body: string, signature: string): boolean {
-  const crypto = require('crypto');
-  const hash = crypto
-    .createHmac('sha512', env.PAYSTACK_WEBHOOK_SECRET)
+  const hash = createHmac('sha512', env.PAYSTACK_WEBHOOK_SECRET)
     .update(body)
     .digest('hex');
   return hash === signature;

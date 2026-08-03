@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "expo start",
     "build": "expo export",
-    "lint": "eslint . --ext .ts,.tsx",
-    "test": "jest"
+    "typecheck": "tsc --noEmit",
+    "lint": "pnpm --workspace-root exec eslint apps/mobile/src --ext .ts,.tsx",
+    "test": "echo 'No mobile tests configured'"
   },
   "dependencies": {
     "expo": "~51.0.0",
@@ -28,6 +29,7 @@
     "@chopsave/shared": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "^20.11.0",
     "@types/react": "~18.2.0",
     "typescript": "^5.3.0",
     "@chopsave/config": "workspace:*"

@@ -91,6 +91,13 @@ export async function createListingHandler(
     reply.status(422).send({ error: 'Maximum 3 food categories allowed' });
     return;
   }
+  const invalidCategories = body.foodCategories.filter(
+    (category) => !VALID_CATEGORIES.includes(category as FoodCategory),
+  );
+  if (invalidCategories.length > 0) {
+    reply.status(422).send({ error: `Invalid food categories: ${invalidCategories.join(', ')}` });
+    return;
+  }
 
   // Validate dietary tags
   if (body.dietaryTags) {

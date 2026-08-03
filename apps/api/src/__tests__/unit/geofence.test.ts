@@ -24,6 +24,6 @@ describe('GeofenceService (structural)', () => {
     // Outside Lagos: lat not in 6.3-6.8
     expect(londonCoord.lat).toBeGreaterThan(50);
     // Outside Abuja: lat not in 8.8-9.1
-    expect(londonCoord.lat).not.toBeGreaterThanOrEqual(8.8);
+    expect(londonCoord.lat).toBeGreaterThan(9.2);
   });
 });
