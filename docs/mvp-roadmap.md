@@ -35,7 +35,7 @@ The backend is the strongest part of the repo. It has meaningful implementation 
 | Workers and queues | Partially implemented | BullMQ workers exist for expiry, no-show, reminders, notifications, payouts, and payment timeout. Worker bootstrapping and operational monitoring need verification. |
 | Notifications | Partially implemented | Notification storage/queues/providers exist. MVP can start with SMS/in-app and defer push polish. |
 | Railway staging | Partially implemented | A GitHub Actions Railway staging workflow and docs exist. Secrets/services still need to be configured and tested. |
-| CI/build | Not release-ready | Known blockers include repo-wide TypeScript issues, duplicate `ioredis` type mismatches, and local pnpm/Corepack instability. |
+| CI/build | Mostly implemented | Lint, type-check, and test commands now pass locally; GitHub Actions verifies pull requests to `main`. Railway staging validation remains outstanding. |
 
 ### Web App
 
@@ -129,6 +129,12 @@ Goal: create a stable base so every later feature can be tested in staging.
 - Decide and implement migration execution for staging.
 - Add seed data for Lagos pilot businesses/listings.
 - Acceptance: CI passes, Railway staging deploys, `/health` passes, migrations run, and seeded listings can be queried from the API.
+
+#### Week 1 Progress (2026-08-03)
+
+- Completed: CI tooling, workspace linting, TypeScript checks, and the API test suite are passing locally.
+- Completed: an idempotent `pnpm --filter @chopsave/api seed` command creates four verified Lagos pilot businesses and active surprise-bag listings after migrations run.
+- Pending external setup: configure Railway staging secrets/services, run migrations and the seed command in Railway, then verify `/health` and `/listings/nearby` against staging.
 
 ### Week 2: Web PWA Auth and Consumer Feed
 
@@ -233,8 +239,7 @@ Pricing references:
 
 ## Immediate Next Actions
 
-1. Fix build and CI blockers.
-2. Configure Railway staging secrets and validate deployment.
-3. Seed Lagos businesses and listings.
-4. Build the Web PWA auth and feed.
-5. Review this roadmap after Week 1 and adjust the remaining schedule based on real velocity.
+1. Configure Railway staging secrets and validate deployment.
+2. Run migrations and `pnpm --filter @chopsave/api seed` in Railway staging.
+3. Build the Web PWA auth and feed.
+4. Review this roadmap after Week 1 and adjust the remaining schedule based on real velocity.

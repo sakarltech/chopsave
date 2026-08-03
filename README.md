@@ -68,6 +68,14 @@ pnpm lint
 pnpm test
 ```
 
+### Seed Lagos pilot data
+
+After applying migrations to a non-production database, seed the four verified Lagos pilot businesses and their active surprise-bag listings:
+
+```bash
+pnpm --filter @chopsave/api seed
+```
+
 ---
 
 ## Tech Stack
