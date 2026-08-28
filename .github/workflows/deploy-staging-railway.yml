@@ -159,13 +159,24 @@ jobs:
         run: echo "Skipping ${{ matrix.name }} deployment."
 
   smoke-test:
-    name: Smoke test staging
+    name: Smoke test staging API
     runs-on: ubuntu-latest
     needs: deploy
     if: ${{ always() && needs.deploy.result == 'success' && vars.RAILWAY_STAGING_API_URL != '' }}
     environment: staging
     steps:
-      - name: Check API health endpoint
+      - name: Check API health endpoint and seeded listings
         run: |
           set -euo pipefail
-          curl --fail --retry 6 --retry-delay 10 "${{ vars.RAILWAY_STAGING_API_URL }}/health"
+          api_url="${{ vars.RAILWAY_STAGING_API_URL }}"
+
+          curl --fail --retry 6 --retry-delay 10 "$api_url/health"
+
+          listings="$(curl --fail --retry 6 --retry-delay 10 --get \
+            --data-urlencode 'lat=6.5244' \
+            --data-urlencode 'lng=3.3792' \
+            --data-urlencode 'radius=10000' \
+            --data-urlencode 'city=lagos' \
+            "$api_url/listings/nearby")"
+
+          echo "$listings" | jq --exit-status '.total >= 1' >/dev/null

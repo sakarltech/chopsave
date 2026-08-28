@@ -134,7 +134,8 @@ Goal: create a stable base so every later feature can be tested in staging.
 
 - Completed: CI tooling, workspace linting, TypeScript checks, and the API test suite are passing locally.
 - Completed: an idempotent `pnpm --filter @chopsave/api seed` command creates four verified Lagos pilot businesses and active surprise-bag listings after migrations run.
-- Pending external setup: configure Railway staging secrets/services, run migrations and the seed command in Railway, then verify `/health` and `/listings/nearby` against staging.
+- Completed: the API deployment uses Railway pre-deploy commands to run migrations on every environment and seed Lagos pilot data in `staging` only; the staging workflow smoke-tests `/health` and `/listings/nearby`.
+- Pending external setup: configure the Railway project/services/secrets, deploy `main`, then verify the first staging smoke test succeeds.
 
 ### Week 2: Web PWA Auth and Consumer Feed
 

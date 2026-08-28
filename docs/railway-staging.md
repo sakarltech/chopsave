@@ -7,7 +7,11 @@ The workflow:
 1. Ensures a Railway environment named `staging` exists.
 2. Deploys the Fastify API service to that environment.
 3. Deploys the Next.js web service to that environment.
-4. Optionally smoke-tests the API health endpoint.
+4. Runs API migrations before every API deployment.
+5. Seeds the four Lagos pilot businesses and surprise-bag listings in `staging` only.
+6. Optionally smoke-tests the API health endpoint and seeded nearby-listings response.
+
+The migration and seed commands run in Railway's API pre-deploy container, so they can use the private Postgres network. A failed migration or seed prevents the API deployment from going live.
 
 ## Railway project setup
 
@@ -58,6 +62,8 @@ Set these on the Railway `staging` environment for the API service:
 - `GOOGLE_CLIENT_ID`
 - `APPLE_CLIENT_ID`
 
+Set `DATABASE_URL` and `REDIS_URL` as Railway reference variables from the Postgres and Redis services in the same project. The API service must be able to reach both through Railway private networking before its pre-deploy migration can run.
+
 Set these on the Railway `staging` environment for the web service:
 
 - `NODE_ENV=production`
@@ -66,3 +72,5 @@ Set these on the Railway `staging` environment for the web service:
 ## Manual deployment
 
 Run the workflow from GitHub Actions with `workflow_dispatch` to deploy either service independently. Pushes to `main` deploy both services to Railway staging.
+
+After the first successful API deployment, confirm the workflow's smoke-test job succeeds. It checks both `GET /health` and a Lagos `GET /listings/nearby` request, proving migrations and seeded listings are available to the staging API.
