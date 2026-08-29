@@ -15,9 +15,9 @@ Connect the `sakarltech/chopsave` GitHub repository to both Vercel projects. Con
 
 Set these variables in the Vercel `api` project for both Preview and Production. Use the same values initially because both environments share the Supabase staging database.
 
-- `NODE_ENV=production`
-- `DATABASE_URL`: Supabase direct or pooler PostgreSQL connection string with SSL enabled.
-- `REDIS_URL`: Upstash Redis TLS connection string (`rediss://...`).
+- `NODE_ENV=production` is set by Vercel for deployed functions.
+- `DATABASE_URL`: Supabase **Transaction pooler** connection string (port `6543`) with SSL enabled. This is the correct choice for the Vercel serverless API.
+- `REDIS_URL`: the Upstash **Redis Connect → Node/ioredis** TLS connection string (`rediss://default:...@...:6379`).
 - `JWT_PRIVATE_KEY` and `JWT_PUBLIC_KEY`: staging-only RS256 PEM key pair.
 - `PAYSTACK_SECRET_KEY` and `PAYSTACK_WEBHOOK_SECRET`: Paystack test credentials.
 - `FLUTTERWAVE_SECRET_KEY` and `FLUTTERWAVE_WEBHOOK_SECRET`: staging credentials or non-empty test placeholders until Flutterwave is enabled.
@@ -36,7 +36,7 @@ After the first API deployment, copy its generated Vercel domain into this varia
 
 ## Database migration and seed
 
-Add `SUPABASE_STAGING_DATABASE_URL` to the GitHub `staging` environment as a secret. This must be a Supabase connection string that can run DDL and has PostGIS extension permissions.
+Add `SUPABASE_STAGING_DATABASE_URL` to the GitHub `staging` environment as a secret. Use the Supabase **Session pooler** connection string (port `5432`), which is IPv4-compatible for GitHub-hosted runners and can run the migration DDL and PostGIS extension setup.
 
 The `Prepare Vercel Staging Data` GitHub Action runs when migration/seed-related files reach `main`, and can be started manually. It applies migrations then runs the idempotent Lagos pilot seed. Use `NODE_ENV=production` in that action so the database client enables TLS.
 
