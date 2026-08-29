@@ -46,3 +46,4 @@ coverage/
 
 # AWS / Cloud
 .aws/
+.vercel

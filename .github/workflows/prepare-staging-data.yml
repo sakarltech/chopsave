@@ -1,0 +1,48 @@
+name: Prepare Vercel Staging Data
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/api/src/db/**'
+      - 'migrations/**'
+      - 'packages/shared/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'package.json'
+      - '.github/workflows/prepare-staging-data.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: staging-data
+  cancel-in-progress: false
+
+jobs:
+  migrate-and-seed:
+    name: Migrate and seed Supabase staging
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      DATABASE_URL: ${{ secrets.SUPABASE_STAGING_DATABASE_URL }}
+      NODE_ENV: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - name: Validate database configuration
+        run: |
+          if [ -z "${DATABASE_URL:-}" ]; then
+            echo "::error::SUPABASE_STAGING_DATABASE_URL is required in the GitHub staging environment."
+            exit 1
+          fi
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Apply migrations
+        run: pnpm --filter @chopsave/api migrate
+      - name: Seed Lagos pilot listings
+        run: pnpm --filter @chopsave/api seed
