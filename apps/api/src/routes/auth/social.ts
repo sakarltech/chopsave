@@ -28,9 +28,12 @@ interface AppleTokenPayload {
  * Verify a Google ID token using Google's tokeninfo endpoint.
  */
 async function verifyGoogleToken(idToken: string): Promise<GoogleTokenPayload> {
-  const response = await fetch(
+  const response = (await fetch(
     `https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`,
-  );
+  )) as {
+    ok: boolean;
+    json(): Promise<unknown>;
+  };
   if (!response.ok) {
     throw new Error('Invalid Google ID token');
   }
