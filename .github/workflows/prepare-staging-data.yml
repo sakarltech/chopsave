@@ -39,7 +39,7 @@ jobs:
             exit 1
           fi
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prod=false
       - name: Apply migrations
         run: pnpm --filter @chopsave/api migrate
       - name: Seed Lagos pilot listings
