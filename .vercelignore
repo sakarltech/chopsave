@@ -1,0 +1,14 @@
+apps/api/.env
+apps/api/.env.*
+apps/web/.env
+apps/web/.env.*
+node_modules
+**/node_modules
+.next
+**/.next
+dist
+**/dist
+.turbo
+**/.turbo
+coverage
+**/coverage

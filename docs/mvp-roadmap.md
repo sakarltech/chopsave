@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This is the working implementation roadmap for getting ChopSave to a testable MVP in 8 weeks. It is intentionally narrower than the full product requirements: the first release is a Lagos-only Web PWA pilot, with surprise bags as the default listing type, manual business verification, manual payouts, and Railway-hosted staging/production.
+This is the working implementation roadmap for getting ChopSave to a testable MVP in 8 weeks. It is intentionally narrower than the full product requirements: the first release is a Lagos-only Web PWA pilot, with surprise bags as the default listing type, manual business verification, manual payouts, and a no-cost Vercel, Supabase, and Upstash staging environment.
 
 This document should be updated after each implementation phase with current status, blockers, and next priorities.
 
@@ -13,7 +13,7 @@ This document should be updated after each implementation phase with current sta
 - Core marketplace model: businesses list discounted surplus food, consumers reserve and pay, then collect with a pickup code.
 - MVP listing type: surprise bags first; itemised listings move to post-MVP unless they become trivial to polish.
 - Operations model: manual business verification and manual payouts for the first pilot.
-- Hosting default: Railway for staging and pilot production.
+- Hosting default: Vercel, Supabase, and Upstash for internal staging; select paid worker-capable infrastructure before commercial production.
 
 ## Current App Assessment
 
@@ -34,8 +34,8 @@ The backend is the strongest part of the repo. It has meaningful implementation 
 | Admin | Partially implemented | Admin routes exist, but a minimal admin web panel is required for MVP operations. |
 | Workers and queues | Partially implemented | BullMQ workers exist for expiry, no-show, reminders, notifications, payouts, and payment timeout. Worker bootstrapping and operational monitoring need verification. |
 | Notifications | Partially implemented | Notification storage/queues/providers exist. MVP can start with SMS/in-app and defer push polish. |
-| Railway staging | Partially implemented | A GitHub Actions Railway staging workflow and docs exist. Secrets/services still need to be configured and tested. |
-| CI/build | Not release-ready | Known blockers include repo-wide TypeScript issues, duplicate `ioredis` type mismatches, and local pnpm/Corepack instability. |
+| Vercel staging | Partially implemented | Vercel API and web projects exist. Supabase/Upstash variables, Git integration, migration/seed execution, and deployment verification remain outstanding. |
+| CI/build | Mostly implemented | Lint, type-check, and test commands now pass locally; GitHub Actions verifies pull requests to `main`. Vercel staging validation remains outstanding. |
 
 ### Web App
 
@@ -96,7 +96,7 @@ Reference: [OLIO](https://en.wikipedia.org/wiki/Olio_%28app%29)
 | Pickup code | Partially implemented | MVP | API pickup code exists; build consumer order screen with code and business manual confirmation. |
 | Business order collection | Partially implemented | MVP | API exists; build business order queue and collect-by-code workflow. |
 | Basic order history | Partially implemented | MVP | API likely exists; build consumer active and past order views. |
-| Staging deployment | Partially implemented | MVP | Railway workflow exists; configure secrets/services and test deploy. |
+| Staging deployment | Partially implemented | MVP | Vercel API/web projects and migration workflow exist; configure variables, Git integration, and test deploy. |
 | Minimal support/admin visibility | Partially implemented | MVP | Build reservation/payment lookup and basic operational status for pilot support. |
 
 ### Nice-To-Have Post-MVP
@@ -125,10 +125,17 @@ Goal: create a stable base so every later feature can be tested in staging.
 - Fix TypeScript/build blockers across API, shared, and web.
 - Resolve duplicate `ioredis` type mismatch and BullMQ connection typing.
 - Stabilize pnpm/Corepack behavior locally and in CI.
-- Configure Railway staging secrets and services for API, web, Postgres/PostGIS, and Redis.
+- Configure Vercel staging variables and services for API, web, Supabase Postgres/PostGIS, and Upstash Redis.
 - Decide and implement migration execution for staging.
 - Add seed data for Lagos pilot businesses/listings.
-- Acceptance: CI passes, Railway staging deploys, `/health` passes, migrations run, and seeded listings can be queried from the API.
+- Acceptance: CI passes, Vercel staging deploys, `/health` passes, migrations run, and seeded listings can be queried from the API.
+
+#### Week 1 Progress (2026-08-29)
+
+- Completed: CI tooling, workspace linting, TypeScript checks, and the API test suite are passing locally.
+- Completed: an idempotent `pnpm --filter @chopsave/api seed` command creates four verified Lagos pilot businesses and active surprise-bag listings after migrations run.
+- Completed: Vercel API and web projects have been created. The API is adapted for a Vercel serverless function and omits the long-lived SSE endpoint there. The `Prepare Vercel Staging Data` workflow applies migrations and the idempotent Lagos seed.
+- Pending external setup: connect `sakarltech/chopsave` to both Vercel projects; set Vercel and GitHub environment variables; deploy `main`; then verify `/health` and `/listings/nearby`.
 
 ### Week 2: Web PWA Auth and Consumer Feed
 
@@ -200,28 +207,27 @@ Goal: prepare a controlled public-facing MVP pilot.
 
 - Add terms, privacy, cancellation/no-show policy, food safety disclaimer, and support contact.
 - Polish Web PWA responsive UX for consumer, business, and admin flows.
-- Configure production Railway environment separate from staging.
+- Select paid, worker-capable production infrastructure separate from staging before accepting commercial users.
 - Freeze MVP scope and run a bug bash.
 - Recruit 3-5 Lagos food partners and a controlled group of consumers.
 - Acceptance: closed Lagos beta can onboard real businesses, publish listings, accept paid reservations, and complete pickups.
 
 ## Hosting Recommendation
 
-Use Railway for staging and pilot production because ChopSave currently needs a Fastify API, Next.js web app, PostgreSQL/PostGIS, Redis, and background workers. Keeping these together reduces operational overhead during the 8-week MVP window.
+Use Vercel, Supabase, and Upstash for the no-cost internal staging environment. Vercel hosts the Next.js web app and Fastify API, Supabase provides PostgreSQL/PostGIS, and Upstash provides Redis. This is suitable for development and internal testing, not a commercial public beta.
 
 Recommended setup:
 
-- One Railway project.
-- Two environments: `staging` and `production`.
-- Services per environment: API, web, Postgres/PostGIS, Redis.
-- GitHub Actions deploys staging from `main`; production should remain manual until the pilot is stable.
-- Use Railway for the first pilot; reconsider Vercel for web, Railway/Fly/Render for API, Supabase/Neon for Postgres, and Upstash for Redis only after usage and cost are real.
+- Two Vercel projects: `api` and `web`, each with preview deployments and `main` as the shared staging deployment.
+- One Supabase Free project for staging PostgreSQL/PostGIS and one Upstash Free Redis database.
+- GitHub Actions applies staging migrations and seed data; Vercel Git integration deploys the API and web projects.
+- Defer persistent worker workloads or move them to paid infrastructure before a commercial beta.
 
 Pricing references:
 
-- [Railway pricing](https://railway.com/pricing)
-- [Render pricing](https://render.com/pricing)
+- [Vercel Hobby plan](https://vercel.com/docs/plans/hobby)
 - [Supabase pricing](https://supabase.com/pricing)
+- [Upstash Redis pricing](https://upstash.com/pricing/redis)
 
 ## Working Process
 
@@ -233,8 +239,8 @@ Pricing references:
 
 ## Immediate Next Actions
 
-1. Fix build and CI blockers.
-2. Configure Railway staging secrets and validate deployment.
-3. Seed Lagos businesses and listings.
+1. Connect the GitHub repository to both Vercel projects and configure Supabase/Upstash environment variables.
+2. Run the `Prepare Vercel Staging Data` workflow and verify migrations plus the Lagos seed.
+3. Deploy the API and web staging projects, then verify `/health` and `/listings/nearby`.
 4. Build the Web PWA auth and feed.
 5. Review this roadmap after Week 1 and adjust the remaining schedule based on real velocity.

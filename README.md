@@ -8,6 +8,8 @@ A Nigerian food waste rescue marketplace. Food businesses — restaurants, baker
 
 The current release plan is an 8-week Lagos-only Web PWA pilot. See [docs/mvp-roadmap.md](docs/mvp-roadmap.md) for the implementation roadmap, feature matrix, competitor baseline, and hosting recommendation.
 
+For the current no-cost internal staging setup, see [docs/vercel-staging.md](docs/vercel-staging.md).
+
 ---
 
 ## Monorepo Structure
@@ -66,6 +68,14 @@ pnpm lint
 
 ```bash
 pnpm test
+```
+
+### Seed Lagos pilot data
+
+After applying migrations to a non-production database, seed the four verified Lagos pilot businesses and their active surprise-bag listings:
+
+```bash
+pnpm --filter @chopsave/api seed
 ```
 
 ---

@@ -35,7 +35,9 @@ app.register(businessOrderRoutes);
 app.register(notificationRoutes);
 app.register(ratingRoutes);
 app.register(payoutRoutes);
-app.register(sseListingRoutes);
+if (!process.env['VERCEL']) {
+  app.register(sseListingRoutes);
+}
 
 const start = async (): Promise<void> => {
   try {
@@ -47,6 +49,8 @@ const start = async (): Promise<void> => {
   }
 };
 
-start();
+if (!process.env['VERCEL']) {
+  void start();
+}
 
 export default app;
