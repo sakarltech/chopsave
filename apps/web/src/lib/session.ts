@@ -11,11 +11,19 @@ export type Session = {
 };
 
 export function saveSession(response: VerifyOtpResponse): void {
+  replaceSession({
+    accessToken: response.accessToken,
+    refreshToken: response.refreshToken,
+    user: response.user,
+  });
+}
+
+export function replaceSession(session: Session): void {
   if (typeof window === 'undefined') return;
 
-  window.localStorage.setItem(accessTokenKey, response.accessToken);
-  window.localStorage.setItem(refreshTokenKey, response.refreshToken);
-  window.localStorage.setItem(userKey, JSON.stringify(response.user));
+  window.localStorage.setItem(accessTokenKey, session.accessToken);
+  window.localStorage.setItem(refreshTokenKey, session.refreshToken);
+  window.localStorage.setItem(userKey, JSON.stringify(session.user));
 }
 
 export function getSession(): Session | null {

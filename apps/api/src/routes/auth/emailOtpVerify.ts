@@ -4,6 +4,7 @@ import { UserRole } from '@chopsave/shared';
 import { getPool } from '../../db/pool';
 import { TokenService } from '../../services/TokenService';
 import { EmailOtpExpiredError, EmailOtpInvalidError, EmailOtpLockedError, EmailOtpService } from '../../services/EmailOtpService';
+import { env } from '../../config/env';
 
 const bodySchema = z.object({
   email: z.string().trim().email(),
@@ -13,6 +14,14 @@ const bodySchema = z.object({
 
 const otpService = new EmailOtpService();
 const tokenService = new TokenService();
+
+function isAdminEmail(email: string): boolean {
+  return env.ADMIN_EMAILS
+    .split(',')
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean)
+    .includes(email);
+}
 
 export async function emailOtpVerifyHandler(
   request: FastifyRequest,
@@ -26,6 +35,7 @@ export async function emailOtpVerifyHandler(
 
   const { otp, fullName } = parsed.data;
   const email = parsed.data.email.trim().toLowerCase();
+  const shouldGrantAdmin = isAdminEmail(email);
   const pool = getPool();
   const existingUser = await pool.query(
     'SELECT id, role, status FROM users WHERE LOWER(email) = $1',
@@ -73,13 +83,19 @@ export async function emailOtpVerifyHandler(
     }
 
     userId = user.id;
-    userRole = user.role;
+    userRole = shouldGrantAdmin ? UserRole.ADMIN : user.role;
+    if (shouldGrantAdmin && user.role !== UserRole.ADMIN) {
+      await pool.query(
+        `UPDATE users SET role = $1, updated_at = NOW() WHERE id = $2`,
+        [UserRole.ADMIN, userId],
+      );
+    }
   } else {
     const newUser = await pool.query(
       `INSERT INTO users (email, full_name, role, status)
        VALUES ($1, $2, $3, 'active')
        RETURNING id, role`,
-      [email, fullName, UserRole.CONSUMER],
+      [email, fullName, shouldGrantAdmin ? UserRole.ADMIN : UserRole.CONSUMER],
     );
 
     userId = newUser.rows[0].id;
