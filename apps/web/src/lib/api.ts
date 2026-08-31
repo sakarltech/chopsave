@@ -36,7 +36,8 @@ async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
 
 export type AuthUser = {
   id: string;
-  phone: string;
+  phone: string | null;
+  email: string | null;
   fullName: string;
   role: string;
 };
@@ -48,20 +49,20 @@ export type VerifyOtpResponse = {
   user: AuthUser;
 };
 
-export async function sendOtp(phone: string): Promise<{ message: string; phone: string }> {
-  return apiRequest('/auth/otp/send', {
+export async function sendEmailOtp(email: string): Promise<{ message: string; email: string }> {
+  return apiRequest('/auth/email-otp/send', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phone }),
+    body: JSON.stringify({ email }),
   });
 }
 
-export async function verifyOtp(params: {
-  phone: string;
+export async function verifyEmailOtp(params: {
+  email: string;
   otp: string;
   fullName?: string;
 }): Promise<VerifyOtpResponse> {
-  return apiRequest('/auth/otp/verify', {
+  return apiRequest('/auth/email-otp/verify', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params),

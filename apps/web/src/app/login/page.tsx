@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ApiError, sendOtp, verifyOtp } from '@/lib/api';
+import { ApiError, sendEmailOtp, verifyEmailOtp } from '@/lib/api';
 import { saveSession } from '@/lib/session';
 import { Brand, Icon } from '@/components/chopsave-ui';
 
-type Step = 'phone' | 'code';
+type Step = 'email' | 'code';
 
 function messageFor(error: unknown): string {
   return error instanceof ApiError || error instanceof Error
@@ -17,23 +17,23 @@ function messageFor(error: unknown): string {
 
 export default function LoginPage() {
   const router = useRouter();
-  const [step, setStep] = useState<Step>('phone');
-  const [phone, setPhone] = useState('');
+  const [step, setStep] = useState<Step>('email');
+  const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [fullName, setFullName] = useState('');
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function handlePhoneSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
+  async function handleEmailSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      const response = await sendOtp(phone);
-      setPhone(response.phone);
-      setNotice('Your six-digit code is on its way.');
+      const response = await sendEmailOtp(email);
+      setEmail(response.email);
+      setNotice('Your six-digit verification code is on its way.');
       setStep('code');
     } catch (requestError) {
       setError(messageFor(requestError));
@@ -48,7 +48,7 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await verifyOtp({ phone, otp, fullName: fullName.trim() || undefined });
+      const response = await verifyEmailOtp({ email, otp, fullName: fullName.trim() || undefined });
       saveSession(response);
       router.replace('/feed');
     } catch (requestError) {
@@ -68,26 +68,26 @@ export default function LoginPage() {
             <h1 className="max-w-md font-heading text-5xl font-extrabold leading-tight">Good food deserves a second chance.</h1>
             <p className="mt-5 max-w-sm text-lg leading-8 text-white/75">Discover nearby surprise bags, save money, and help keep great food out of the bin.</p>
           </div>
-          <p className="text-sm text-white/60">Simple phone sign-in. No password required.</p>
+          <p className="text-sm text-white/60">Simple email sign-in. No password required.</p>
         </section>
 
         <section className="flex flex-1 flex-col justify-center p-6 sm:p-10 lg:p-12">
           <div className="mb-12 lg:hidden"><Brand /></div>
           <div className="mx-auto w-full max-w-md">
             <p className="eyebrow"><Icon name="shield" size={16} />Secure sign-in</p>
-            <h1 className="mt-5 font-heading text-3xl font-extrabold tracking-tight text-slate-900">{step === 'phone' ? 'Welcome to ChopSave' : 'Check your phone'}</h1>
-            <p className="mt-3 leading-6 text-slate-600">{step === 'phone' ? 'Enter your Nigerian phone number to find food near you.' : `We sent a six-digit code to ${phone}.`}</p>
+            <h1 className="mt-5 font-heading text-3xl font-extrabold tracking-tight text-slate-900">{step === 'email' ? 'Welcome to ChopSave' : 'Check your email'}</h1>
+            <p className="mt-3 leading-6 text-slate-600">{step === 'email' ? 'Enter your email address to find food near you.' : `We sent a six-digit code to ${email}.`}</p>
 
             {notice && <p role="status" className="mt-5 rounded-xl bg-forest-50 px-4 py-3 text-sm font-medium text-forest">{notice}</p>}
             {error && <p role="alert" className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{error}</p>}
 
-            {step === 'phone' ? (
-              <form className="mt-8 space-y-5" onSubmit={handlePhoneSubmit}>
+            {step === 'email' ? (
+              <form className="mt-8 space-y-5" onSubmit={handleEmailSubmit}>
                 <label className="block">
-                  <span className="mb-2 block text-sm font-bold text-slate-700">Nigerian phone number</span>
-                  <input required autoComplete="tel" inputMode="tel" placeholder="0801 234 5678" value={phone} onChange={(event) => setPhone(event.target.value)} className="w-full rounded-xl border border-line bg-white px-4 py-3.5 text-lg text-slate-900 placeholder:text-slate-400" />
+                  <span className="mb-2 block text-sm font-bold text-slate-700">Email address</span>
+                  <input required autoComplete="email" inputMode="email" type="email" placeholder="ada@example.com" value={email} onChange={(event) => setEmail(event.target.value)} className="w-full rounded-xl border border-line bg-white px-4 py-3.5 text-lg text-slate-900 placeholder:text-slate-400" />
                 </label>
-                <button className="primary-button w-full" disabled={loading} type="submit">{loading ? 'Sending code…' : 'Continue with phone'}</button>
+                <button className="primary-button w-full" disabled={loading} type="submit">{loading ? 'Sending code…' : 'Continue with email'}</button>
               </form>
             ) : (
               <form className="mt-8 space-y-5" onSubmit={handleCodeSubmit}>
@@ -100,11 +100,11 @@ export default function LoginPage() {
                   <input autoComplete="name" placeholder="Ada Okafor" value={fullName} onChange={(event) => setFullName(event.target.value)} className="w-full rounded-xl border border-line bg-white px-4 py-3.5 text-lg text-slate-900 placeholder:text-slate-400" />
                 </label>
                 <button className="primary-button w-full" disabled={loading} type="submit">{loading ? 'Verifying…' : 'Verify and continue'}</button>
-                <button className="w-full text-sm font-bold text-forest hover:text-forest-dark" disabled={loading} type="button" onClick={() => { setStep('phone'); setError(''); setNotice(''); }}>Use a different number</button>
+                <button className="w-full text-sm font-bold text-forest hover:text-forest-dark" disabled={loading} type="button" onClick={() => { setStep('email'); setError(''); setNotice(''); }}>Use a different email</button>
               </form>
             )}
 
-            <p className="mt-8 text-center text-sm leading-6 text-slate-500">By continuing, you agree to receive a one-time verification code. Standard SMS rates may apply.</p>
+            <p className="mt-8 text-center text-sm leading-6 text-slate-500">By continuing, you agree to receive a one-time verification code by email.</p>
           </div>
         </section>
       </div>

@@ -138,7 +138,7 @@ export default function FeedPage() {
 
         {!loading && !error && visibleListings.length > 0 && <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{visibleListings.map((listing, index) => <ListingCard key={listing.id} listing={toCardListing(listing, index)} />)}</div>}
 
-        {!authenticated && <aside className="mt-8 flex flex-col gap-4 rounded-2xl bg-forest p-6 text-white sm:flex-row sm:items-center sm:justify-between"><div><p className="font-heading text-xl font-extrabold">Found something you like?</p><p className="mt-1 text-sm text-white/75">Sign in with your phone to reserve a surprise bag when reservations launch.</p></div><a href="/login" className="secondary-button shrink-0 border-white bg-white text-forest hover:border-white hover:text-forest">Sign in to ChopSave</a></aside>}
+        {!authenticated && <aside className="mt-8 flex flex-col gap-4 rounded-2xl bg-forest p-6 text-white sm:flex-row sm:items-center sm:justify-between"><div><p className="font-heading text-xl font-extrabold">Found something you like?</p><p className="mt-1 text-sm text-white/75">Sign in with your email to reserve a surprise bag when reservations launch.</p></div><a href="/login" className="secondary-button shrink-0 border-white bg-white text-forest hover:border-white hover:text-forest">Sign in to ChopSave</a></aside>}
       </section>
     </PageShell>
   );
