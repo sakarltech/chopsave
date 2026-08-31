@@ -34,8 +34,8 @@ The backend is the strongest part of the repo. It has meaningful implementation 
 | Admin | Partially implemented | Admin routes exist, but a minimal admin web panel is required for MVP operations. |
 | Workers and queues | Partially implemented | BullMQ workers exist for expiry, no-show, reminders, notifications, payouts, and payment timeout. Worker bootstrapping and operational monitoring need verification. |
 | Notifications | Partially implemented | Notification storage/queues/providers exist. MVP can start with SMS/in-app and defer push polish. |
-| Vercel staging | Partially implemented | Vercel API and web projects exist. Supabase/Upstash variables, Git integration, migration/seed execution, and deployment verification remain outstanding. |
-| CI/build | Mostly implemented | Lint, type-check, and test commands now pass locally; GitHub Actions verifies pull requests to `main`. Vercel staging validation remains outstanding. |
+| Vercel staging | Implemented for internal staging | Vercel API and web projects are connected to GitHub. Supabase/Upstash variables, deployment verification, and automated migration/seed execution are confirmed. |
+| CI/build | Mostly implemented | GitHub Actions, Vercel previews, and production staging deployments pass. The repository-pinned pnpm version is used in CI; the local global pnpm/Corepack shim remains an environment-specific caveat. |
 
 ### Web App
 
@@ -130,12 +130,13 @@ Goal: create a stable base so every later feature can be tested in staging.
 - Add seed data for Lagos pilot businesses/listings.
 - Acceptance: CI passes, Vercel staging deploys, `/health` passes, migrations run, and seeded listings can be queried from the API.
 
-#### Week 1 Progress (2026-08-29)
+#### Week 1 Status: Complete (2026-08-31)
 
-- Completed: CI tooling, workspace linting, TypeScript checks, and the API test suite are passing locally.
-- Completed: an idempotent `pnpm --filter @chopsave/api seed` command creates four verified Lagos pilot businesses and active surprise-bag listings after migrations run.
-- Completed: Vercel API and web projects have been created. The API is adapted for a Vercel serverless function and omits the long-lived SSE endpoint there. The `Prepare Vercel Staging Data` workflow applies migrations and the idempotent Lagos seed.
-- Pending external setup: connect `sakarltech/chopsave` to both Vercel projects; set Vercel and GitHub environment variables; deploy `main`; then verify `/health` and `/listings/nearby`.
+- Completed: CI linting, TypeScript checks, and the API test suite pass on pull requests. Turbo now builds workspace dependencies before checks that import their compiled output.
+- Completed: the API is packaged and routed for Vercel serverless functions; API and web deployments pass on preview and `main`.
+- Completed: Supabase/PostGIS and Upstash Redis are configured for internal staging. The `Prepare Vercel Staging Data` workflow applies migrations and the idempotent Lagos seed after relevant `main` changes.
+- Verified: the deployed API returns `200` from `/health`, and `/listings/nearby?lat=6.5244&lng=3.3792&radius=50000&city=lagos` returns four active seeded Lagos surprise-bag listings.
+- Caveat: the machine's global pnpm/Corepack shim can still hang locally. This does not affect CI or Vercel; use the repository-pinned pnpm setup for project commands until the local toolchain is repaired.
 
 ### Week 2: Web PWA Auth and Consumer Feed
 
@@ -239,8 +240,6 @@ Pricing references:
 
 ## Immediate Next Actions
 
-1. Connect the GitHub repository to both Vercel projects and configure Supabase/Upstash environment variables.
-2. Run the `Prepare Vercel Staging Data` workflow and verify migrations plus the Lagos seed.
-3. Deploy the API and web staging projects, then verify `/health` and `/listings/nearby`.
-4. Build the Web PWA auth and feed.
-5. Review this roadmap after Week 1 and adjust the remaining schedule based on real velocity.
+1. Begin Week 2: build the Web PWA phone OTP authentication and consumer feed.
+2. Configure the web deployment's `NEXT_PUBLIC_API_URL` with the stable staging API URL before wiring live requests.
+3. Keep this roadmap updated after each focused implementation PR and adjust the remaining schedule based on delivery velocity.
