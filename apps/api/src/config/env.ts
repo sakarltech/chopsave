@@ -25,6 +25,8 @@ const envSchema = z.object({
 
   // Termii SMS
   TERMII_API_KEY: z.string().min(1, 'TERMII_API_KEY is required'),
+  TERMII_BASE_URL: z.string().url('TERMII_BASE_URL must be a valid URL').default('https://api.ng.termii.com'),
+  TERMII_SENDER_ID: z.string().min(3).max(11).default('ChopSave'),
 
   // Firebase Cloud Messaging
   FCM_SERVICE_ACCOUNT: z.string().min(1, 'FCM_SERVICE_ACCOUNT is required'),
