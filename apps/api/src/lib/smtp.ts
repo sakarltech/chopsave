@@ -42,7 +42,7 @@ function verificationEmailHtml(otp: string): string {
               <td style="padding: 30px 36px; background-color: #165C34; border-radius: 20px 20px 0 0;">
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                   <tr>
-                    <td width="38" height="38" align="center" style="width: 38px; height: 38px; background-color: #FFFFFF; border-radius: 10px; color: #165C34; font-size: 22px; font-weight: 700; line-height: 38px;">&#10047;</td>
+                    <td width="38" height="38" align="center" style="width: 38px; height: 38px; background-color: #FFFFFF; border-radius: 10px; line-height: 38px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#165C34" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="ChopSave leaf logo"><path d="M20.8 3.2C12 3.8 5.3 8.7 5.3 15.5c0 3.2 2.5 5.3 5.4 5.3 6.6 0 10.2-8.1 10.1-17.6ZM3.2 21c4-4.4 7.6-7 12.2-9.3" /></svg></td>
                     <td style="padding-left: 10px; color: #FFFFFF; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">ChopSave</td>
                   </tr>
                 </table>
