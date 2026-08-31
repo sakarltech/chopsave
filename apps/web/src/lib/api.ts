@@ -34,6 +34,16 @@ async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
   return body;
 }
 
+function authenticatedRequest<T>(path: string, accessToken: string, init?: RequestInit): Promise<T> {
+  return apiRequest(path, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      ...init?.headers,
+    },
+  });
+}
+
 export type AuthUser = {
   id: string;
   phone: string | null;
@@ -66,6 +76,79 @@ export async function verifyEmailOtp(params: {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params),
+  });
+}
+
+export type BusinessApplication = {
+  businessName: string;
+  type: 'restaurant' | 'bakery' | 'buka' | 'canteen' | 'food_stall' | 'supermarket' | 'cloud_kitchen';
+  cacNumber?: string;
+  address: string;
+  city: 'lagos';
+  lat: number;
+  lng: number;
+  contactPhone: string;
+  ownerFullName: string;
+};
+
+export type RegisteredBusiness = {
+  id: string;
+  name: string;
+  verificationTier: string;
+  status: 'pending';
+  message: string;
+};
+
+export async function registerBusiness(accessToken: string, business: BusinessApplication): Promise<RegisteredBusiness> {
+  return authenticatedRequest('/businesses/register', accessToken, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(business),
+  });
+}
+
+export async function refreshAccessToken(refreshToken: string): Promise<{ accessToken: string }> {
+  return apiRequest('/auth/refresh', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken }),
+  });
+}
+
+export async function getCurrentUser(accessToken: string): Promise<AuthUser> {
+  return authenticatedRequest('/users/me', accessToken);
+}
+
+export type PendingBusiness = {
+  id: string;
+  name: string;
+  type: string;
+  address: string;
+  city: string;
+  cacNumber: string | null;
+  ownerName: string;
+  ownerEmail: string | null;
+  contactPhone: string | null;
+  createdAt: string;
+};
+
+export async function getPendingBusinesses(accessToken: string): Promise<{ businesses: PendingBusiness[]; total: number }> {
+  return authenticatedRequest('/admin/businesses/pending', accessToken);
+}
+
+export async function approveBusiness(accessToken: string, businessId: string, tier?: 'verified_informal' | 'verified_cac'): Promise<void> {
+  await authenticatedRequest(`/admin/businesses/${businessId}/approve`, accessToken, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(tier ? { tier } : {}),
+  });
+}
+
+export async function rejectBusiness(accessToken: string, businessId: string, reason: string): Promise<void> {
+  await authenticatedRequest(`/admin/businesses/${businessId}/reject`, accessToken, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reason }),
   });
 }
 

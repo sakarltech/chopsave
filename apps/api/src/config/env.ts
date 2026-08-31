@@ -36,6 +36,9 @@ const envSchema = z.object({
   SMTP_PASSWORD: z.string().min(1, 'SMTP_PASSWORD cannot be empty').optional(),
   SMTP_FROM: z.string().email('SMTP_FROM must be a valid email address').optional(),
 
+  // Pilot operations
+  ADMIN_EMAILS: z.string().default(''),
+
   // Firebase Cloud Messaging
   FCM_SERVICE_ACCOUNT: z.string().min(1, 'FCM_SERVICE_ACCOUNT is required'),
 

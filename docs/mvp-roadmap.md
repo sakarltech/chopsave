@@ -149,16 +149,21 @@ Goal: a consumer can log in and browse available Lagos listings.
 - Add loading, empty, and error states.
 - Acceptance: a test consumer can log in by email on staging and browse seeded listings.
 
-#### Week 2 Status: In Progress (2026-08-31)
+#### Week 2 Status: Complete (2026-08-31)
 
 - Completed: Web PWA consumer feed, API integration, session persistence, and a responsive email OTP sign-in interface.
 - Completed: API email OTP routes with Redis-backed rate limiting, expiry, lockout, and Namecheap SMTP delivery integration.
-- Blocker: add Namecheap SMTP credentials to Vercel before performing end-to-end staging verification.
+- Verified: Namecheap SMTP is configured in Vercel and a test consumer completed email OTP sign-in and loaded the seeded Lagos feed.
 - Decision: defer phone/SMS OTP and Termii configuration until post-MVP to avoid per-message pilot costs.
 
 ### Week 3: Business Onboarding and Minimal Admin Verification
 
 Goal: a business can apply, and an admin can approve it.
+
+#### Week 3 Status: In Progress (2026-08-31)
+
+- In progress: replace the Web PWA business and admin placeholders with live registration and verification workflows.
+- In progress: persist a business owner contact phone for email-first accounts and allow a small, explicit `ADMIN_EMAILS` pilot allowlist to bootstrap operations access.
 
 - Build business registration page with business name, category, address, city, phone, owner name, coordinates/manual location, and optional CAC.
 - Build admin login/access assumptions using existing role system.
