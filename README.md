@@ -91,7 +91,8 @@ pnpm --filter @chopsave/api seed
 | Cache / Pub-Sub | Redis 7 |
 | Job Queue | BullMQ |
 | Push Notifications | Firebase Cloud Messaging |
-| SMS / OTP | Termii |
+| Email OTP | Resend |
+| Phone OTP (post-MVP) | Termii |
 | Payments | Paystack (primary) + Flutterwave (fallback) |
 | File Storage | AWS S3 / Cloudflare R2 |
 | CDN | Cloudflare |

@@ -28,6 +28,10 @@ const envSchema = z.object({
   TERMII_BASE_URL: z.string().url('TERMII_BASE_URL must be a valid URL').default('https://api.ng.termii.com'),
   TERMII_SENDER_ID: z.string().min(3).max(11).default('ChopSave'),
 
+  // Resend email delivery
+  RESEND_API_KEY: z.string().min(1, 'RESEND_API_KEY is required').optional(),
+  RESEND_FROM_EMAIL: z.string().email('RESEND_FROM_EMAIL must be a valid email address').default('onboarding@resend.dev'),
+
   // Firebase Cloud Messaging
   FCM_SERVICE_ACCOUNT: z.string().min(1, 'FCM_SERVICE_ACCOUNT is required'),
 
