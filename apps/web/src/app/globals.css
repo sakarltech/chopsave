@@ -1,3 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Outfit:wght@500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root { color-scheme: light; }
+  html { scroll-behavior: smooth; }
+  body { @apply bg-cream font-sans text-slate-900 antialiased; }
+  button, a, input { -webkit-tap-highlight-color: transparent; }
+  button:focus-visible, a:focus-visible, input:focus-visible { @apply outline-none ring-2 ring-forest ring-offset-2; }
+}
+
+@layer components {
+  .tap-target { @apply grid h-11 w-11 place-items-center; }
+  .eyebrow { @apply inline-flex items-center gap-2 rounded-full bg-lime-100 px-3 py-1.5 text-sm font-semibold text-forest; }
+  .primary-button { @apply inline-flex min-h-12 items-center justify-center rounded-xl bg-forest px-6 py-3 font-heading font-bold text-white shadow-sm transition hover:bg-forest-dark disabled:cursor-not-allowed disabled:opacity-60; }
+  .secondary-button { @apply inline-flex min-h-12 items-center justify-center rounded-xl border border-line bg-white px-6 py-3 font-heading font-bold text-slate-700 transition hover:border-forest hover:text-forest; }
+}
