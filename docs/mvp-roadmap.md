@@ -25,7 +25,7 @@ The backend is the strongest part of the repo. It has meaningful implementation 
 | --- | --- | --- |
 | API app wiring | Mostly implemented | Fastify registers auth, users, businesses, admin, listings, reservations, payments, business orders, notifications, ratings, payouts, and SSE routes. |
 | Database schema | Mostly implemented | Migrations cover users, businesses, listings, reservations, payments, ratings, favourites, notifications, payouts, disputes, admin actions, system config, geofences, and refresh tokens. |
-| Auth and sessions | Partially implemented | Email OTP, refresh token, logout, and auth middleware exist. The Web PWA client flow is implemented; Resend configuration and end-to-end email testing remain. |
+| Auth and sessions | Partially implemented | Email OTP, refresh token, logout, and auth middleware exist. The Web PWA client flow is implemented; Namecheap SMTP configuration and end-to-end email testing remain. |
 | Business registration | Mostly implemented | API validates business data, geofence, and queues admin review. Admin UI still needs to be built. |
 | Listings | Mostly implemented | API supports creation, nearby discovery, listing detail, management, itemised items, and Redis/SSE events. Client experience is not ready. |
 | Reservations | Mostly implemented | API supports create, cancel, list, detail, collect, pickup code, and pending-payment expiry handling. Needs end-to-end payment testing. |
@@ -86,7 +86,7 @@ Reference: [OLIO](https://en.wikipedia.org/wiki/Olio_%28app%29)
 
 | Feature | Current status | Release phase | MVP notes |
 | --- | --- | --- | --- |
-| Email OTP login | Partially implemented | MVP | API and Web PWA email entry, OTP verify, and token persistence exist. Configure Resend and verify a sender domain before the closed beta. |
+| Email OTP login | Partially implemented | MVP | API and Web PWA email entry, OTP verify, and token persistence exist. Configure Namecheap Private Email SMTP and verify deliverability before the closed beta. |
 | Consumer nearby feed | Partially implemented | MVP | API exists; build Web PWA feed with Lagos default, manual area fallback, listing cards, loading, empty, and error states. |
 | Listing detail | Partially implemented | MVP | API exists; build detail page with price, discount, pickup window, business, quantity, policy, and reserve CTA. |
 | Business onboarding | Partially implemented | MVP | API exists; build business registration UI and link it to admin verification. |
@@ -152,8 +152,8 @@ Goal: a consumer can log in and browse available Lagos listings.
 #### Week 2 Status: In Progress (2026-08-31)
 
 - Completed: Web PWA consumer feed, API integration, session persistence, and a responsive email OTP sign-in interface.
-- Completed: API email OTP routes with Redis-backed rate limiting, expiry, lockout, and Resend delivery integration.
-- Blocker: create a Resend API key, verify a sender domain, and add `RESEND_API_KEY` plus `RESEND_FROM_EMAIL` to Vercel before performing end-to-end staging verification.
+- Completed: API email OTP routes with Redis-backed rate limiting, expiry, lockout, and Namecheap SMTP delivery integration.
+- Blocker: add Namecheap SMTP credentials to Vercel before performing end-to-end staging verification.
 - Decision: defer phone/SMS OTP and Termii configuration until post-MVP to avoid per-message pilot costs.
 
 ### Week 3: Business Onboarding and Minimal Admin Verification
@@ -247,6 +247,6 @@ Pricing references:
 
 ## Immediate Next Actions
 
-1. Configure Resend and add `RESEND_API_KEY` plus `RESEND_FROM_EMAIL` to the Vercel API project.
+1. Configure Namecheap SMTP and add `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM` to the Vercel API project.
 2. Test email OTP sign-in on staging, then merge the Week 2 implementation.
 3. Keep this roadmap updated after each focused implementation PR and adjust the remaining schedule based on delivery velocity.

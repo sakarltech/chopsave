@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
-import { EmailDeliveryConfigurationError } from '../../lib/resend';
+import { EmailDeliveryConfigurationError } from '../../lib/smtp';
 import { EmailOtpLockedError, EmailOtpRateLimitError, EmailOtpService } from '../../services/EmailOtpService';
 
 const bodySchema = z.object({

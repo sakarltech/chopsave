@@ -1,6 +1,6 @@
 import { createHmac, randomInt } from 'crypto';
 import { getRedis } from '../plugins/redis';
-import { sendEmailOtp } from '../lib/resend';
+import { sendEmailOtp } from '../lib/smtp';
 
 const OTP_TTL_SECONDS = 300;
 const OTP_RATE_LIMIT_MAX = 5;
