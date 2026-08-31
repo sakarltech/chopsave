@@ -6,7 +6,7 @@ import { TokenService } from '../../services/TokenService';
 import { EmailOtpExpiredError, EmailOtpInvalidError, EmailOtpLockedError, EmailOtpService } from '../../services/EmailOtpService';
 
 const bodySchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().email(),
   otp: z.string().regex(/^\d{6}$/, 'OTP must be a 6-digit code.'),
   fullName: z.string().trim().min(2).max(255).optional(),
 });
@@ -28,7 +28,7 @@ export async function emailOtpVerifyHandler(
   const email = parsed.data.email.trim().toLowerCase();
   const pool = getPool();
   const existingUser = await pool.query(
-    'SELECT id, role, status FROM users WHERE email = $1',
+    'SELECT id, role, status FROM users WHERE LOWER(email) = $1',
     [email],
   );
 

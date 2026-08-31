@@ -4,7 +4,7 @@ import { EmailDeliveryConfigurationError } from '../../lib/resend';
 import { EmailOtpLockedError, EmailOtpRateLimitError, EmailOtpService } from '../../services/EmailOtpService';
 
 const bodySchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().email(),
 });
 
 const otpService = new EmailOtpService();
