@@ -160,10 +160,11 @@ Goal: a consumer can log in and browse available Lagos listings.
 
 Goal: a business can apply, and an admin can approve it.
 
-#### Week 3 Status: In Progress (2026-08-31)
+#### Week 3 Status: Complete (2026-09-03)
 
-- In progress: replace the Web PWA business and admin placeholders with live registration and verification workflows.
-- In progress: persist a business owner contact phone for email-first accounts and allow a small, explicit `ADMIN_EMAILS` pilot allowlist to bootstrap operations access.
+- Completed: Web PWA business registration and admin approval/rejection workflows are live, including clear operational status messages.
+- Completed: business owner contact phone is persisted for email-first accounts, while a small, explicit `ADMIN_EMAILS` allowlist bootstraps pilot operations access.
+- Verified: a test business application was submitted and approved through the deployed staging flow.
 
 - Build business registration page with business name, category, address, city, phone, owner name, coordinates/manual location, and optional CAC.
 - Build admin login/access assumptions using existing role system.
@@ -174,6 +175,12 @@ Goal: a business can apply, and an admin can approve it.
 ### Week 4: Business Listing Management for Surprise Bags
 
 Goal: verified businesses can publish and manage simple surplus listings.
+
+#### Week 4 Status: In Progress (2026-09-03)
+
+- In progress: add an owner-only business dashboard that loads the signed-in business and its listings.
+- In progress: connect surprise-bag publishing, edit, pause/resume, sold-out, close, and delete controls to the existing listing API.
+- In progress: keep publishing blocked until business verification is complete, both in the web UI and API.
 
 - Build create listing flow for surprise bags only.
 - Include title, description, original price, discount price, quantity, pickup start/end, category, dietary tags, and optional photo URL.

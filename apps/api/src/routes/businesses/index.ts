@@ -1,10 +1,14 @@
 import { FastifyInstance } from 'fastify';
 import { registerBusinessHandler } from './register';
-import { getBusinessHandler, updateBusinessHandler } from './profile';
+import { getBusinessHandler, getMyBusinessHandler, updateBusinessHandler } from './profile';
 import { addBankAccountHandler, getBankAccountsHandler } from './bankAccounts';
 import { requireRole } from '../../middleware/requireRole';
 
 export async function businessRoutes(app: FastifyInstance): Promise<void> {
+  app.get('/businesses/me', {
+    preHandler: [app.authenticate, requireRole('business_owner')],
+  }, getMyBusinessHandler);
+
   // Public
   app.get('/businesses/:id', getBusinessHandler);
 

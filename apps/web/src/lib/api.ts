@@ -152,6 +152,96 @@ export async function rejectBusiness(accessToken: string, businessId: string, re
   });
 }
 
+export type MyBusiness = {
+  id: string;
+  name: string;
+  type: string;
+  address: string;
+  city: string;
+  verificationTier: 'pending' | 'verified_informal' | 'verified_cac' | 'rejected';
+  rejectionReason: string | null;
+  activeListingCount: number;
+};
+
+export async function getMyBusiness(accessToken: string): Promise<MyBusiness> {
+  return authenticatedRequest('/businesses/me', accessToken);
+}
+
+export type ManagedListing = {
+  id: string;
+  businessId: string;
+  type: 'surprise_bag' | 'itemised';
+  title: string | null;
+  description: string | null;
+  originalPrice: number | null;
+  discountPrice: number;
+  quantityTotal: number;
+  quantityRemaining: number;
+  pickupStart: string;
+  pickupEnd: string;
+  foodCategories: string[];
+  dietaryTags: string[];
+  photoUrl: string | null;
+  weightKg: number;
+  status: 'active' | 'paused' | 'sold_out' | 'expired' | 'closed';
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CreateListing = {
+  type: 'surprise_bag';
+  title: string;
+  description: string;
+  originalPrice: number;
+  discountPrice: number;
+  quantityTotal: number;
+  pickupStart: string;
+  pickupEnd: string;
+  foodCategories: string[];
+  dietaryTags: string[];
+  photoUrl?: string;
+};
+
+export async function getMyListings(accessToken: string): Promise<{ listings: ManagedListing[] }> {
+  return authenticatedRequest('/listings/mine', accessToken);
+}
+
+export async function createListing(accessToken: string, listing: CreateListing): Promise<ManagedListing> {
+  return authenticatedRequest('/listings', accessToken, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(listing),
+  });
+}
+
+export async function updateListing(
+  accessToken: string,
+  listingId: string,
+  listing: Pick<ManagedListing, 'title' | 'description' | 'pickupStart' | 'pickupEnd' | 'dietaryTags'>,
+): Promise<void> {
+  await authenticatedRequest(`/listings/${listingId}`, accessToken, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(listing),
+  });
+}
+
+export async function updateListingStatus(
+  accessToken: string,
+  listingId: string,
+  status: 'active' | 'paused' | 'sold_out' | 'closed',
+): Promise<void> {
+  await authenticatedRequest(`/listings/${listingId}/status`, accessToken, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function deleteListing(accessToken: string, listingId: string): Promise<void> {
+  await authenticatedRequest(`/listings/${listingId}`, accessToken, { method: 'DELETE' });
+}
+
 export type NearbyListing = {
   id: string;
   type: string;
