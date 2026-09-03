@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { getPool } from '../../db/pool';
 import { isWithinSupportedCity } from '../../services/GeofenceService';
-import { BusinessType, SupportedCity } from '@chopsave/shared';
+import { BusinessType, SupportedCity, isValidNigerianPhone, normaliseToE164 } from '@chopsave/shared';
 import { notificationDispatchQueue } from '../../plugins/queue';
 
 interface RegisterBusinessBody {
@@ -52,6 +52,10 @@ export async function registerBusinessHandler(
     reply.status(422).send({ error: 'contactPhone is required' });
     return;
   }
+  if (!isValidNigerianPhone(contactPhone)) {
+    reply.status(422).send({ error: 'contactPhone must be a valid Nigerian phone number' });
+    return;
+  }
   if (!ownerFullName || ownerFullName.trim().length < 2) {
     reply.status(422).send({ error: 'ownerFullName is required (minimum 2 characters)' });
     return;
@@ -62,6 +66,8 @@ export async function registerBusinessHandler(
     reply.status(422).send({ error: 'CAC number must be a 7-digit number' });
     return;
   }
+
+  const normalisedPhone = normaliseToE164(contactPhone);
 
   // Geofence validation
   const withinCity = await isWithinSupportedCity(lat, lng, city);
@@ -82,6 +88,15 @@ export async function registerBusinessHandler(
     return;
   }
 
+  const existingPhone = await pool.query(
+    `SELECT id FROM users WHERE phone = $1 AND id != $2`,
+    [normalisedPhone, userId],
+  );
+  if (existingPhone.rows.length > 0) {
+    reply.status(409).send({ error: 'This contact phone number is already used by another account' });
+    return;
+  }
+
   // Create business
   const result = await pool.query(
     `INSERT INTO businesses (
@@ -93,8 +108,8 @@ export async function registerBusinessHandler(
 
   // Update user role to business_owner
   await pool.query(
-    `UPDATE users SET role = 'business_owner', full_name = $1, updated_at = NOW() WHERE id = $2`,
-    [ownerFullName.trim(), userId],
+    `UPDATE users SET role = 'business_owner', full_name = $1, phone = $2, updated_at = NOW() WHERE id = $3`,
+    [ownerFullName.trim(), normalisedPhone, userId],
   );
 
   // Notify admin via notification queue (new business pending review)

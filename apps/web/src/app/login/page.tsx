@@ -1,58 +1,113 @@
 'use client';
-import { useState } from 'react';
+
+import Link from 'next/link';
+import { FormEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { ApiError, sendEmailOtp, verifyEmailOtp } from '@/lib/api';
+import { saveSession } from '@/lib/session';
+import { Brand, Icon } from '@/components/chopsave-ui';
+
+type Step = 'email' | 'code';
+
+function messageFor(error: unknown): string {
+  return error instanceof ApiError || error instanceof Error
+    ? error.message
+    : 'Something went wrong. Please try again.';
+}
 
 export default function LoginPage() {
-  const [phone, setPhone] = useState('');
+  const router = useRouter();
+  const [step, setStep] = useState<Step>('email');
+  const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
-  const [step, setStep] = useState<'phone' | 'otp'>('phone');
+  const [fullName, setFullName] = useState('');
+  const [notice, setNotice] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const sendOtp = async () => {
+  async function handleEmailSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
     setLoading(true);
-    try {
-      await fetch('/api/auth/otp/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone }) });
-      setStep('otp');
-    } catch { alert('Failed to send OTP'); }
-    finally { setLoading(false); }
-  };
+    setError('');
 
-  const verifyOtp = async () => {
-    setLoading(true);
     try {
-      const res = await fetch('/api/auth/otp/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone, otp }) });
-      const data = await res.json();
-      if (data.accessToken) { localStorage.setItem('token', data.accessToken); window.location.href = '/feed'; }
-      else { alert(data.error || 'Verification failed'); }
-    } catch { alert('Verification failed'); }
-    finally { setLoading(false); }
-  };
+      const response = await sendEmailOtp(email);
+      setEmail(response.email);
+      setNotice('Your six-digit verification code is on its way.');
+      setStep('code');
+    } catch (requestError) {
+      setError(messageFor(requestError));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleCodeSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await verifyEmailOtp({ email, otp, fullName: fullName.trim() || undefined });
+      saveSession(response);
+      router.replace('/feed');
+    } catch (requestError) {
+      setError(messageFor(requestError));
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold mb-2">Log in to ChopSave</h1>
-        {step === 'phone' ? (
-          <>
-            <p className="text-gray-600 mb-6">Enter your Nigerian phone number</p>
-            <input type="tel" placeholder="08X XXXX XXXX" value={phone} onChange={(e) => setPhone(e.target.value)}
-              className="w-full border rounded-xl p-4 text-lg mb-4" maxLength={14} />
-            <button onClick={sendOtp} disabled={loading}
-              className="w-full bg-chopsave-600 text-white py-4 rounded-xl font-semibold text-lg hover:bg-chopsave-700 disabled:opacity-50">
-              {loading ? 'Sending...' : 'Send OTP'}
-            </button>
-          </>
-        ) : (
-          <>
-            <p className="text-gray-600 mb-6">Enter the 6-digit code sent to {phone}</p>
-            <input type="text" placeholder="000000" value={otp} onChange={(e) => setOtp(e.target.value)}
-              className="w-full border rounded-xl p-4 text-lg mb-4 text-center tracking-widest" maxLength={6} />
-            <button onClick={verifyOtp} disabled={loading}
-              className="w-full bg-chopsave-600 text-white py-4 rounded-xl font-semibold text-lg hover:bg-chopsave-700 disabled:opacity-50">
-              {loading ? 'Verifying...' : 'Verify & Continue'}
-            </button>
-          </>
-        )}
+    <main className="min-h-screen bg-cream px-4 py-6 sm:px-6 sm:py-10">
+      <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-5xl flex-col rounded-3xl border border-line bg-white shadow-card lg:grid lg:grid-cols-[1.1fr_0.9fr]">
+        <section className="hidden rounded-l-3xl bg-forest p-12 text-white lg:flex lg:flex-col lg:justify-between">
+          <Link href="/" className="inline-flex items-center gap-2 font-heading text-xl font-extrabold tracking-tight text-white"><span className="grid h-8 w-8 place-items-center rounded-lg bg-white text-forest"><Icon name="leaf" size={17} /></span>ChopSave</Link>
+          <div>
+            <p className="mb-4 inline-flex rounded-full bg-white/10 px-3 py-1 text-sm font-semibold text-lime-100">Lagos pilot</p>
+            <h1 className="max-w-md font-heading text-5xl font-extrabold leading-tight">Good food deserves a second chance.</h1>
+            <p className="mt-5 max-w-sm text-lg leading-8 text-white/75">Discover nearby surprise bags, save money, and help keep great food out of the bin.</p>
+          </div>
+          <p className="text-sm text-white/60">Simple email sign-in. No password required.</p>
+        </section>
+
+        <section className="flex flex-1 flex-col justify-center p-6 sm:p-10 lg:p-12">
+          <div className="mb-12 lg:hidden"><Brand /></div>
+          <div className="mx-auto w-full max-w-md">
+            <p className="eyebrow"><Icon name="shield" size={16} />Secure sign-in</p>
+            <h1 className="mt-5 font-heading text-3xl font-extrabold tracking-tight text-slate-900">{step === 'email' ? 'Welcome to ChopSave' : 'Check your email'}</h1>
+            <p className="mt-3 leading-6 text-slate-600">{step === 'email' ? 'Enter your email address to find food near you.' : `We sent a six-digit code to ${email}.`}</p>
+
+            {notice && <p role="status" className="mt-5 rounded-xl bg-forest-50 px-4 py-3 text-sm font-medium text-forest">{notice}</p>}
+            {error && <p role="alert" className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{error}</p>}
+
+            {step === 'email' ? (
+              <form className="mt-8 space-y-5" onSubmit={handleEmailSubmit}>
+                <label className="block">
+                  <span className="mb-2 block text-sm font-bold text-slate-700">Email address</span>
+                  <input required autoComplete="email" inputMode="email" type="email" placeholder="ada@example.com" value={email} onChange={(event) => setEmail(event.target.value)} className="w-full rounded-xl border border-line bg-white px-4 py-3.5 text-lg text-slate-900 placeholder:text-slate-400" />
+                </label>
+                <button className="primary-button w-full" disabled={loading} type="submit">{loading ? 'Sending code…' : 'Continue with email'}</button>
+              </form>
+            ) : (
+              <form className="mt-8 space-y-5" onSubmit={handleCodeSubmit}>
+                <label className="block">
+                  <span className="mb-2 block text-sm font-bold text-slate-700">Verification code</span>
+                  <input required autoComplete="one-time-code" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} placeholder="000000" value={otp} onChange={(event) => setOtp(event.target.value.replace(/\D/g, ''))} className="w-full rounded-xl border border-line bg-white px-4 py-3.5 text-center font-heading text-2xl font-bold tracking-[0.35em] text-slate-900 placeholder:tracking-normal placeholder:text-slate-400" />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-sm font-bold text-slate-700">Your name <span className="font-normal text-slate-400">(new customers only)</span></span>
+                  <input autoComplete="name" placeholder="Ada Okafor" value={fullName} onChange={(event) => setFullName(event.target.value)} className="w-full rounded-xl border border-line bg-white px-4 py-3.5 text-lg text-slate-900 placeholder:text-slate-400" />
+                </label>
+                <button className="primary-button w-full" disabled={loading} type="submit">{loading ? 'Verifying…' : 'Verify and continue'}</button>
+                <button className="w-full text-sm font-bold text-forest hover:text-forest-dark" disabled={loading} type="button" onClick={() => { setStep('email'); setError(''); setNotice(''); }}>Use a different email</button>
+              </form>
+            )}
+
+            <p className="mt-8 text-center text-sm leading-6 text-slate-500">By continuing, you agree to receive a one-time verification code by email.</p>
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
