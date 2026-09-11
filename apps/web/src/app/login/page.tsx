@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ApiError, sendEmailOtp, verifyEmailOtp } from '@/lib/api';
 import { saveSession } from '@/lib/session';
@@ -17,6 +17,7 @@ function messageFor(error: unknown): string {
 
 export default function LoginPage() {
   const router = useRouter();
+  const [nextPath, setNextPath] = useState('/feed');
   const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -24,6 +25,11 @@ export default function LoginPage() {
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const next = new URLSearchParams(window.location.search).get('next');
+    if (next?.startsWith('/')) setNextPath(next);
+  }, []);
 
   async function handleEmailSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
@@ -50,7 +56,7 @@ export default function LoginPage() {
     try {
       const response = await verifyEmailOtp({ email, otp, fullName: fullName.trim() || undefined });
       saveSession(response);
-      router.replace('/feed');
+      router.replace(nextPath);
     } catch (requestError) {
       setError(messageFor(requestError));
     } finally {

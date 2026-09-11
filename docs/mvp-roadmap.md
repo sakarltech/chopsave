@@ -192,6 +192,12 @@ Goal: verified businesses can publish and manage simple surplus listings.
 
 Goal: a consumer can reserve and pay for a listing end to end.
 
+#### Week 5 Status: In Progress (2026-09-11)
+
+- Completed: the Web PWA listing-detail page now loads live API data and creates authenticated pending reservations.
+- Completed: a checkout page supports Paystack card, bank-transfer, and USSD initiation, returns to the reservation, and waits for webhook-confirmed payment before showing the collection code.
+- Remaining: configure `WEB_APP_URL` in the API deployment, perform real Paystack test transactions, and complete the orders/pickup management screens.
+
 - Build listing detail page and reserve flow.
 - Create pending reservation, initiate Paystack payment, and show pending payment state.
 - Handle successful payment return/callback and webhook-confirmed reservation state.

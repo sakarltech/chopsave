@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { getPool } from '../../db/pool';
 import { initializeTransaction } from '../../lib/paystack';
 import { randomBytes } from 'crypto';
+import { env } from '../../config/env';
 
 interface InitiatePaymentBody {
   reservationId: string;
@@ -39,6 +40,9 @@ export async function initiatePaymentHandler(
   const amountKobo = Math.round(parseFloat(reservation.amount_paid) * 100);
   const reference = `cs_${randomBytes(16).toString('hex')}`;
   const email = reservation.email || `${reservation.phone}@chopsave.ng`;
+  const callbackUrl = env.WEB_APP_URL
+    ? `${env.WEB_APP_URL.replace(/\/$/, '')}/checkout/${reservationId}?payment=return`
+    : undefined;
 
   // Determine Paystack channels based on method
   let channels: string[] | undefined;
@@ -57,6 +61,7 @@ export async function initiatePaymentHandler(
       consumerId: userId,
       listingId: reservation.listing_id,
     },
+    callbackUrl,
   });
 
   // Create payment record

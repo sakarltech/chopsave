@@ -286,3 +286,69 @@ export async function getNearbyListings(params: {
 
   return apiRequest(`/listings/nearby?${query.toString()}`);
 }
+
+export type ListingDetail = {
+  id: string;
+  businessId: string;
+  type: 'surprise_bag' | 'itemised';
+  title: string | null;
+  description: string | null;
+  originalPrice: number | null;
+  discountPrice: number;
+  quantityTotal: number;
+  quantityRemaining: number;
+  pickupStart: string;
+  pickupEnd: string;
+  foodCategories: string[];
+  dietaryTags: string[];
+  photoUrl: string | null;
+  status: string;
+  business: NearbyListing['business'] & { lat: number | null; lng: number | null };
+};
+
+export async function getListing(listingId: string): Promise<ListingDetail> {
+  return apiRequest(`/listings/${listingId}`);
+}
+
+export type Reservation = {
+  id: string;
+  listingId: string;
+  businessId: string;
+  quantity: number;
+  amountPaid: number;
+  status: 'pending_payment' | 'confirmed' | 'ready' | 'completed' | 'cancelled' | 'refunded' | 'no_show';
+  pickupCode: string;
+  listingTitle?: string | null;
+  listingType?: string;
+  pickupStart?: string;
+  pickupEnd?: string;
+  businessName?: string;
+  businessAddress?: string;
+  createdAt?: string;
+};
+
+export async function createReservation(accessToken: string, params: {
+  listingId: string;
+  quantity: number;
+}): Promise<Reservation> {
+  return authenticatedRequest('/reservations', accessToken, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+}
+
+export async function getReservation(accessToken: string, reservationId: string): Promise<Reservation> {
+  return authenticatedRequest(`/reservations/${reservationId}`, accessToken);
+}
+
+export async function initiatePayment(accessToken: string, params: {
+  reservationId: string;
+  method: 'card' | 'bank_transfer' | 'ussd';
+}): Promise<{ paymentUrl: string; accessCode: string; reference: string }> {
+  return authenticatedRequest('/payments/initiate', accessToken, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+}
