@@ -38,6 +38,7 @@ const envSchema = z.object({
 
   // Pilot operations
   ADMIN_EMAILS: z.string().default(''),
+  WEB_APP_URL: z.string().url('WEB_APP_URL must be a valid URL').optional(),
 
   // Firebase Cloud Messaging
   FCM_SERVICE_ACCOUNT: z.string().min(1, 'FCM_SERVICE_ACCOUNT is required'),

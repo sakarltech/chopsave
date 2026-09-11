@@ -25,6 +25,7 @@ Set these variables in the Vercel `api` project for both Preview and Production.
 - `FCM_SERVICE_ACCOUNT`: `{}` until push notifications are enabled.
 - `AWS_S3_BUCKET`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_REGION`: staging object-storage credentials or non-empty placeholders while uploads are disabled.
 - `GOOGLE_CLIENT_ID` and `APPLE_CLIENT_ID`: non-empty test placeholders until social login is enabled.
+- `WEB_APP_URL`: the HTTPS URL of the Vercel `web` project, with no trailing slash. This is the Paystack return destination after payment.
 
 ## Web environment variables
 
