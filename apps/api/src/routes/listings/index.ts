@@ -2,12 +2,17 @@ import { FastifyInstance } from 'fastify';
 import { requireRole } from '../../middleware/requireRole';
 import { createListingHandler } from './create';
 import { getNearbyListingsHandler, getListingDetailHandler } from './nearby';
-import { updateListingHandler, updateListingStatusHandler, deleteListingHandler } from './manage';
+import { getMyListingsHandler, updateListingHandler, updateListingStatusHandler, deleteListingHandler } from './manage';
 import { addListingItemHandler, updateListingItemHandler, deleteListingItemHandler } from './items';
 
 export async function listingRoutes(app: FastifyInstance): Promise<void> {
   // Public
   app.get('/listings/nearby', getNearbyListingsHandler);
+
+  app.get('/listings/mine', {
+    preHandler: [app.authenticate, requireRole('business_owner')],
+  }, getMyListingsHandler);
+
   app.get('/listings/:id', getListingDetailHandler);
 
   // Business owner

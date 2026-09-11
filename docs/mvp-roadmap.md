@@ -25,7 +25,7 @@ The backend is the strongest part of the repo. It has meaningful implementation 
 | --- | --- | --- |
 | API app wiring | Mostly implemented | Fastify registers auth, users, businesses, admin, listings, reservations, payments, business orders, notifications, ratings, payouts, and SSE routes. |
 | Database schema | Mostly implemented | Migrations cover users, businesses, listings, reservations, payments, ratings, favourites, notifications, payouts, disputes, admin actions, system config, geofences, and refresh tokens. |
-| Auth and sessions | Partially implemented | OTP, refresh token, logout, and auth middleware exist, but real client flow and production SMS verification still need end-to-end testing. |
+| Auth and sessions | Partially implemented | Email OTP, refresh token, logout, and auth middleware exist. The Web PWA client flow is implemented; Namecheap SMTP configuration and end-to-end email testing remain. |
 | Business registration | Mostly implemented | API validates business data, geofence, and queues admin review. Admin UI still needs to be built. |
 | Listings | Mostly implemented | API supports creation, nearby discovery, listing detail, management, itemised items, and Redis/SSE events. Client experience is not ready. |
 | Reservations | Mostly implemented | API supports create, cancel, list, detail, collect, pickup code, and pending-payment expiry handling. Needs end-to-end payment testing. |
@@ -34,8 +34,8 @@ The backend is the strongest part of the repo. It has meaningful implementation 
 | Admin | Partially implemented | Admin routes exist, but a minimal admin web panel is required for MVP operations. |
 | Workers and queues | Partially implemented | BullMQ workers exist for expiry, no-show, reminders, notifications, payouts, and payment timeout. Worker bootstrapping and operational monitoring need verification. |
 | Notifications | Partially implemented | Notification storage/queues/providers exist. MVP can start with SMS/in-app and defer push polish. |
-| Vercel staging | Partially implemented | Vercel API and web projects exist. Supabase/Upstash variables, Git integration, migration/seed execution, and deployment verification remain outstanding. |
-| CI/build | Mostly implemented | Lint, type-check, and test commands now pass locally; GitHub Actions verifies pull requests to `main`. Vercel staging validation remains outstanding. |
+| Vercel staging | Implemented for internal staging | Vercel API and web projects are connected to GitHub. Supabase/Upstash variables, deployment verification, and automated migration/seed execution are confirmed. |
+| CI/build | Mostly implemented | GitHub Actions, Vercel previews, and production staging deployments pass. The repository-pinned pnpm version is used in CI; the local global pnpm/Corepack shim remains an environment-specific caveat. |
 
 ### Web App
 
@@ -86,7 +86,7 @@ Reference: [OLIO](https://en.wikipedia.org/wiki/Olio_%28app%29)
 
 | Feature | Current status | Release phase | MVP notes |
 | --- | --- | --- | --- |
-| OTP login | Partially implemented | MVP | API exists; build Web PWA phone entry, OTP verify, token persistence, logout, and error states. |
+| Email OTP login | Partially implemented | MVP | API and Web PWA email entry, OTP verify, and token persistence exist. Configure Namecheap Private Email SMTP and verify deliverability before the closed beta. |
 | Consumer nearby feed | Partially implemented | MVP | API exists; build Web PWA feed with Lagos default, manual area fallback, listing cards, loading, empty, and error states. |
 | Listing detail | Partially implemented | MVP | API exists; build detail page with price, discount, pickup window, business, quantity, policy, and reserve CTA. |
 | Business onboarding | Partially implemented | MVP | API exists; build business registration UI and link it to admin verification. |
@@ -106,11 +106,11 @@ Reference: [OLIO](https://en.wikipedia.org/wiki/Olio_%28app%29)
 | Map view | Partially implemented | Post-MVP | Mobile dependency exists; web/mobile map can wait until feed conversion is understood. |
 | Favourites | Partially implemented | Post-MVP | DB exists; defer until repeat consumer behavior matters. |
 | Ratings and reviews | Partially implemented | Post-MVP | Backend exists; useful after real completed pickups exist. |
-| Push notifications | Partially implemented | Post-MVP | Start with SMS/in-app for MVP; polish FCM later. |
+| Push notifications | Partially implemented | Post-MVP | Start with email/in-app for MVP; polish FCM later. |
 | Itemised listings | Partially implemented | Post-MVP | API supports it, but surprise bags should be the MVP default. |
 | Auto payouts | Partially implemented | Post-MVP | Manual payouts are acceptable for the pilot. |
 | Disputes dashboard | Partially implemented | Post-MVP | Keep support SOP manual during MVP; build dashboard after support patterns emerge. |
-| Social login | Partially implemented | Post-MVP | Phone OTP is enough for MVP. |
+| Social login | Partially implemented | Post-MVP | Email OTP is enough for MVP. |
 | Referrals | Not implemented | Later | Add after retention and invite loops are clearer. |
 | Loyalty/credits | Not implemented | Later | Requires payment/refund/accounting maturity. |
 | Analytics dashboard | Partially implemented | Later | Useful after pilot data exists. |
@@ -130,27 +130,41 @@ Goal: create a stable base so every later feature can be tested in staging.
 - Add seed data for Lagos pilot businesses/listings.
 - Acceptance: CI passes, Vercel staging deploys, `/health` passes, migrations run, and seeded listings can be queried from the API.
 
-#### Week 1 Progress (2026-08-29)
+#### Week 1 Status: Complete (2026-08-31)
 
-- Completed: CI tooling, workspace linting, TypeScript checks, and the API test suite are passing locally.
-- Completed: an idempotent `pnpm --filter @chopsave/api seed` command creates four verified Lagos pilot businesses and active surprise-bag listings after migrations run.
-- Completed: Vercel API and web projects have been created. The API is adapted for a Vercel serverless function and omits the long-lived SSE endpoint there. The `Prepare Vercel Staging Data` workflow applies migrations and the idempotent Lagos seed.
-- Pending external setup: connect `sakarltech/chopsave` to both Vercel projects; set Vercel and GitHub environment variables; deploy `main`; then verify `/health` and `/listings/nearby`.
+- Completed: CI linting, TypeScript checks, and the API test suite pass on pull requests. Turbo now builds workspace dependencies before checks that import their compiled output.
+- Completed: the API is packaged and routed for Vercel serverless functions; API and web deployments pass on preview and `main`.
+- Completed: Supabase/PostGIS and Upstash Redis are configured for internal staging. The `Prepare Vercel Staging Data` workflow applies migrations and the idempotent Lagos seed after relevant `main` changes.
+- Verified: the deployed API returns `200` from `/health`, and `/listings/nearby?lat=6.5244&lng=3.3792&radius=50000&city=lagos` returns four active seeded Lagos surprise-bag listings.
+- Caveat: the machine's global pnpm/Corepack shim can still hang locally. This does not affect CI or Vercel; use the repository-pinned pnpm setup for project commands until the local toolchain is repaired.
 
 ### Week 2: Web PWA Auth and Consumer Feed
 
 Goal: a consumer can log in and browse available Lagos listings.
 
-- Build phone number entry, OTP verification, session persistence, refresh, and logout.
+- Build email entry, OTP verification, session persistence, refresh, and logout.
 - Build consumer feed page using `/listings/nearby`.
 - Use Lagos as the default pilot city; add manual location/area fallback instead of relying only on GPS.
 - Add listing card UI with business name, title, price, discount, pickup window, distance placeholder/manual area, and quantity remaining.
 - Add loading, empty, and error states.
-- Acceptance: a test consumer can log in on staging and browse seeded listings.
+- Acceptance: a test consumer can log in by email on staging and browse seeded listings.
+
+#### Week 2 Status: Complete (2026-08-31)
+
+- Completed: Web PWA consumer feed, API integration, session persistence, and a responsive email OTP sign-in interface.
+- Completed: API email OTP routes with Redis-backed rate limiting, expiry, lockout, and Namecheap SMTP delivery integration.
+- Verified: Namecheap SMTP is configured in Vercel and a test consumer completed email OTP sign-in and loaded the seeded Lagos feed.
+- Decision: defer phone/SMS OTP and Termii configuration until post-MVP to avoid per-message pilot costs.
 
 ### Week 3: Business Onboarding and Minimal Admin Verification
 
 Goal: a business can apply, and an admin can approve it.
+
+#### Week 3 Status: Complete (2026-09-03)
+
+- Completed: Web PWA business registration and admin approval/rejection workflows are live, including clear operational status messages.
+- Completed: business owner contact phone is persisted for email-first accounts, while a small, explicit `ADMIN_EMAILS` allowlist bootstraps pilot operations access.
+- Verified: a test business application was submitted and approved through the deployed staging flow.
 
 - Build business registration page with business name, category, address, city, phone, owner name, coordinates/manual location, and optional CAC.
 - Build admin login/access assumptions using existing role system.
@@ -161,6 +175,12 @@ Goal: a business can apply, and an admin can approve it.
 ### Week 4: Business Listing Management for Surprise Bags
 
 Goal: verified businesses can publish and manage simple surplus listings.
+
+#### Week 4 Status: In Progress (2026-09-03)
+
+- In progress: add an owner-only business dashboard that loads the signed-in business and its listings.
+- In progress: connect surprise-bag publishing, edit, pause/resume, sold-out, close, and delete controls to the existing listing API.
+- In progress: keep publishing blocked until business verification is complete, both in the web UI and API.
 
 - Build create listing flow for surprise bags only.
 - Include title, description, original price, discount price, quantity, pickup start/end, category, dietary tags, and optional photo URL.
@@ -239,8 +259,6 @@ Pricing references:
 
 ## Immediate Next Actions
 
-1. Connect the GitHub repository to both Vercel projects and configure Supabase/Upstash environment variables.
-2. Run the `Prepare Vercel Staging Data` workflow and verify migrations plus the Lagos seed.
-3. Deploy the API and web staging projects, then verify `/health` and `/listings/nearby`.
-4. Build the Web PWA auth and feed.
-5. Review this roadmap after Week 1 and adjust the remaining schedule based on real velocity.
+1. Configure Namecheap SMTP and add `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM` to the Vercel API project.
+2. Test email OTP sign-in on staging, then merge the Week 2 implementation.
+3. Keep this roadmap updated after each focused implementation PR and adjust the remaining schedule based on delivery velocity.

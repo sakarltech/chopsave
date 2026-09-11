@@ -6,23 +6,23 @@ import { describe, it, expect } from 'vitest';
  * These are structural validation tests for the auth contract.
  */
 describe('API: Auth Endpoints (contract)', () => {
-  describe('POST /auth/otp/send', () => {
-    it('should accept valid Nigerian phone numbers', () => {
-      const validPhones = ['08012345678', '+2348012345678', '2348012345678', '07012345678'];
-      validPhones.forEach((phone) => {
-        expect(phone.length).toBeGreaterThanOrEqual(11);
+  describe('POST /auth/email-otp/send', () => {
+    it('should accept valid email addresses', () => {
+      const validEmails = ['ada@example.com', 'team@chopsave.ng'];
+      validEmails.forEach((email) => {
+        expect(email).toMatch(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
       });
     });
 
-    it('should reject invalid phone formats', () => {
-      const invalidPhones = ['12345', '', '+1234567890', 'abcdefghijk'];
-      invalidPhones.forEach((phone) => {
-        expect(phone.length < 11 || !phone.match(/^(\+?234|0)[789]\d{9}$/)).toBe(true);
+    it('should reject invalid email formats', () => {
+      const invalidEmails = ['12345', '', 'ada@', 'chopsave.ng'];
+      invalidEmails.forEach((email) => {
+        expect(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)).toBe(false);
       });
     });
   });
 
-  describe('POST /auth/otp/verify', () => {
+  describe('POST /auth/email-otp/verify', () => {
     it('OTP must be 6 digits', () => {
       const validOtp = '123456';
       const invalidOtps = ['12345', '1234567', 'abcdef', ''];

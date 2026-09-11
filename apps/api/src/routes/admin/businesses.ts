@@ -12,7 +12,7 @@ export async function getPendingBusinesses(
   const result = await pool.query(
     `SELECT b.id, b.name, b.type, b.address, b.city, b.cac_number,
             b.verification_tier, b.photo_urls, b.created_at,
-            u.full_name AS owner_name, u.phone AS contact_phone
+            u.full_name AS owner_name, u.phone AS contact_phone, u.email AS owner_email
      FROM businesses b
      JOIN users u ON u.id = b.user_id
      WHERE b.verification_tier = 'pending'
@@ -31,6 +31,7 @@ export async function getPendingBusinesses(
       photoUrls: row.photo_urls,
       ownerName: row.owner_name,
       contactPhone: row.contact_phone,
+      ownerEmail: row.owner_email,
       createdAt: row.created_at,
     })),
     total: result.rows.length,

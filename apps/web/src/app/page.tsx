@@ -1,51 +1,35 @@
+import Link from 'next/link';
+import { Header, Icon } from '@/components/chopsave-ui';
+
+const steps = [
+  { icon: 'search' as const, title: 'Discover', copy: 'See surprise bags from nearby Lagos food businesses.' },
+  { icon: 'bag' as const, title: 'Reserve', copy: 'Pick a bag and secure it before collection time.' },
+  { icon: 'leaf' as const, title: 'Collect', copy: 'Enjoy great food and keep it from going to waste.' },
+];
+
 export default function HomePage() {
   return (
-    <main className="min-h-screen">
-      {/* Hero */}
-      <section className="bg-chopsave-600 text-white py-20 px-6 text-center">
-        <h1 className="text-4xl md:text-6xl font-bold mb-4">ChopSave 🍛</h1>
-        <p className="text-xl md:text-2xl mb-2">Chop Well. Waste Nothing.</p>
-        <p className="text-lg opacity-90 max-w-2xl mx-auto mb-8">
-          Rescue surplus food from nearby restaurants, bakeries, and food businesses at 50-75% off. Lagos & Abuja.
-        </p>
-        <div className="flex gap-4 justify-center flex-wrap">
-          <a href="/login" className="bg-white text-chopsave-700 px-8 py-3 rounded-xl font-semibold text-lg hover:bg-gray-100">Find Food Near You</a>
-          <a href="/business/register" className="border-2 border-white text-white px-8 py-3 rounded-xl font-semibold text-lg hover:bg-white/10">List Your Business</a>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="py-16 px-6 max-w-5xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="text-center">
-            <div className="text-4xl mb-4">📍</div>
-            <h3 className="text-xl font-semibold mb-2">Discover</h3>
-            <p className="text-gray-600">Find surplus food from businesses near you at huge discounts</p>
+    <div className="min-h-screen bg-cream text-slate-900">
+      <Header />
+      <main>
+        <section className="relative overflow-hidden bg-forest px-4 py-20 text-white sm:px-6 sm:py-28">
+          <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-lime-500/20 blur-3xl" />
+          <div className="absolute -bottom-36 left-1/4 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+          <div className="relative mx-auto max-w-6xl">
+            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm font-bold text-lime-100"><Icon name="map-pin" size={16} />Now rescuing food in Lagos</p>
+            <h1 className="mt-6 max-w-3xl font-heading text-5xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">Good food. Better prices. Less waste.</h1>
+            <p className="mt-6 max-w-xl text-lg leading-8 text-white/80 sm:text-xl">ChopSave helps you discover surplus food from local businesses and collect it for less.</p>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row"><Link href="/feed" className="primary-button bg-white text-forest hover:bg-lime-100">Find food near you <Icon name="arrow-right" size={18} /></Link><Link href="/business" className="secondary-button border-white/40 bg-transparent text-white hover:border-white hover:bg-white/10 hover:text-white">I run a food business</Link></div>
+            <p className="mt-7 text-sm text-white/60">Lagos pilot · Surprise bags from verified local businesses</p>
           </div>
-          <div className="text-center">
-            <div className="text-4xl mb-4">💳</div>
-            <h3 className="text-xl font-semibold mb-2">Reserve & Pay</h3>
-            <p className="text-gray-600">Reserve your meal and pay securely with card, bank transfer, or USSD</p>
-          </div>
-          <div className="text-center">
-            <div className="text-4xl mb-4">🛍️</div>
-            <h3 className="text-xl font-semibold mb-2">Collect</h3>
-            <p className="text-gray-600">Show your pickup code at the business and enjoy your food!</p>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Cities */}
-      <section className="bg-white py-16 px-6 text-center">
-        <h2 className="text-3xl font-bold mb-4">Now in Lagos & Abuja</h2>
-        <p className="text-gray-600 text-lg">More Nigerian cities coming soon</p>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8 px-6 text-center">
-        <p className="text-sm opacity-70">© 2024 ChopSave. Reducing food waste across Nigeria.</p>
-      </footer>
-    </main>
+        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+          <div className="max-w-2xl"><p className="eyebrow">How ChopSave works</p><h2 className="mt-4 font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">A simple way to save a meal—and make a difference.</h2></div>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">{steps.map((step, index) => <article key={step.title} className="rounded-2xl border border-line bg-white p-6 shadow-card"><span className="grid h-11 w-11 place-items-center rounded-xl bg-forest-50 text-forest"><Icon name={step.icon} size={21} /></span><p className="mt-6 text-sm font-bold text-lime-500">0{index + 1}</p><h3 className="mt-1 font-heading text-xl font-extrabold">{step.title}</h3><p className="mt-3 leading-6 text-slate-600">{step.copy}</p></article>)}</div>
+        </section>
+      </main>
+      <footer className="border-t border-line bg-white px-4 py-8 text-center text-sm text-slate-500">© {new Date().getFullYear()} ChopSave. Chop well. Waste nothing.</footer>
+    </div>
   );
 }

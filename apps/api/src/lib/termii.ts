@@ -12,12 +12,14 @@ interface TermiiSendResponse {
  * https://developers.termii.com/messaging
  */
 export async function sendSms(phone: string, message: string): Promise<TermiiSendResponse> {
-  const response = await fetch('https://api.ng.termii.com/api/sms/send', {
+  const recipient = phone.startsWith('+') ? phone.slice(1) : phone;
+  const baseUrl = env.TERMII_BASE_URL.replace(/\/$/, '');
+  const response = await fetch(`${baseUrl}/api/sms/send`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      to: phone,
-      from: 'ChopSave',
+      to: recipient,
+      from: env.TERMII_SENDER_ID,
       sms: message,
       type: 'plain',
       channel: 'generic',

@@ -2,6 +2,44 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { getPool } from '../../db/pool';
 import { getRedis } from '../../plugins/redis';
 
+export async function getMyListingsHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
+  const pool = getPool();
+  const result = await pool.query(
+    `SELECT l.*
+     FROM listings l
+     JOIN businesses b ON b.id = l.business_id
+     WHERE b.user_id = $1
+     ORDER BY l.pickup_start DESC, l.created_at DESC`,
+    [request.user!.id],
+  );
+
+  reply.status(200).send({
+    listings: result.rows.map((listing) => ({
+      id: listing.id,
+      businessId: listing.business_id,
+      type: listing.type,
+      title: listing.title,
+      description: listing.description,
+      originalPrice: listing.original_price ? parseFloat(listing.original_price) : null,
+      discountPrice: parseFloat(listing.discount_price),
+      quantityTotal: listing.quantity_total,
+      quantityRemaining: listing.quantity_remaining,
+      pickupStart: listing.pickup_start,
+      pickupEnd: listing.pickup_end,
+      foodCategories: listing.food_categories,
+      dietaryTags: listing.dietary_tags,
+      photoUrl: listing.photo_url,
+      weightKg: parseFloat(listing.weight_kg),
+      status: listing.status,
+      createdAt: listing.created_at,
+      updatedAt: listing.updated_at,
+    })),
+  });
+}
+
 interface UpdateListingBody {
   title?: string;
   description?: string;
@@ -74,7 +112,7 @@ export async function updateListingHandler(
 
 // PATCH /listings/:id/status
 interface StatusBody {
-  status: 'paused' | 'active' | 'closed';
+  status: 'paused' | 'active' | 'sold_out' | 'closed';
 }
 
 export async function updateListingStatusHandler(
@@ -86,8 +124,8 @@ export async function updateListingStatusHandler(
   const { id } = request.params;
   const { status } = request.body;
 
-  if (!['paused', 'active', 'closed'].includes(status)) {
-    reply.status(422).send({ error: 'status must be paused, active, or closed' });
+  if (!['paused', 'active', 'sold_out', 'closed'].includes(status)) {
+    reply.status(422).send({ error: 'status must be paused, active, sold_out, or closed' });
     return;
   }
 
@@ -103,17 +141,39 @@ export async function updateListingStatusHandler(
     return;
   }
 
+  const currentStatus = listing.rows[0].status;
+  if (status === 'active' && currentStatus !== 'paused') {
+    reply.status(409).send({ error: 'Only paused listings can be resumed' });
+    return;
+  }
+  if (status === 'paused' && currentStatus !== 'active') {
+    reply.status(409).send({ error: 'Only active listings can be paused' });
+    return;
+  }
+  if (status === 'sold_out' && !['active', 'paused'].includes(currentStatus)) {
+    reply.status(409).send({ error: 'Only active or paused listings can be marked sold out' });
+    return;
+  }
+  if (status === 'closed' && currentStatus === 'closed') {
+    reply.status(409).send({ error: 'Listing is already closed' });
+    return;
+  }
+
   await pool.query(
-    `UPDATE listings SET status = $1, updated_at = NOW() WHERE id = $2`,
+    `UPDATE listings
+     SET status = $1,
+         quantity_remaining = CASE WHEN $1 = 'sold_out' THEN 0 ELSE quantity_remaining END,
+         updated_at = NOW()
+     WHERE id = $2`,
     [status, id],
   );
 
   // Publish event for SSE
   const redis = getRedis();
   const city = listing.rows[0].city;
-  if (status === 'closed' || status === 'paused') {
+  if (status === 'closed' || status === 'paused' || status === 'sold_out') {
     await redis.publish(`channel:listings:${city}`, JSON.stringify({
-      event: 'listing.expired',
+      event: status === 'sold_out' ? 'listing.sold_out' : 'listing.expired',
       data: { listingId: id, city },
     }));
   }
